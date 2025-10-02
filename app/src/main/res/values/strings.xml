@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">Base Ads</string>
     <string name="admob_app_id">ca-app-pub-8819120490234533~8638521114</string>
+    
+    <!-- Force Update Strings -->
+    <string name="force_update_title_default">Cập nhật bắt buộc</string>
+    <string name="force_update_message_default">Phiên bản mới đã sẵn sàng. Vui lòng cập nhật để tiếp tục sử dụng.</string>
+    <string name="force_update_button">Cập nhật</string>
 </resources>

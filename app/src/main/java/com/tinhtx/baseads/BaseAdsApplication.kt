@@ -10,6 +10,7 @@ package com.tinhtx.baseads
 import android.app.Application
 import com.tinhtx.baseads.core.AdsInitializer
 import com.tinhtx.baseads.data.AdsPrefs
+import com.tinhtx.baseads.forceupdate.data.ForceUpdateRepository
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
@@ -25,6 +26,9 @@ class BaseAdsApplication : Application() {
     @Inject 
     lateinit var adsPrefs: AdsPrefs
     
+    @Inject
+    lateinit var forceUpdateRepository: ForceUpdateRepository
+    
     override fun onCreate() {
         super.onCreate()
         
@@ -36,5 +40,8 @@ class BaseAdsApplication : Application() {
             context = this,
             includeCommonTestDevices = true
         )
+        
+        // Initialize force update with remote config
+        forceUpdateRepository.init()
     }
 }

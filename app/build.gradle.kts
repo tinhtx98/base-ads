@@ -79,6 +79,7 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics.ktx)
     implementation(libs.firebase.crashlytics.ktx)
+    implementation(libs.firebase.config.ktx)
     
     // Google Mobile Ads (already included in base-ads module)
     // implementation(libs.google.mobile.ads)

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Remote Config Default Values
+    
+    These values are used when:
+    - Remote config hasn't been fetched yet
+    - Remote config fetch fails
+    - App is offline
+-->
+<defaultsMap>
+    <entry>
+        <key>force_update_json</key>
+        <value>{"latest_version_code":null,"latest_version_name":null,"force_now":false,"title":null,"message":null,"store_url":null}</value>
+    </entry>
+</defaultsMap>

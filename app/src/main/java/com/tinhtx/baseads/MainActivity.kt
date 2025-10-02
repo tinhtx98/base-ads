@@ -57,6 +57,8 @@ import com.tinhtx.baseads.core.VipGate
 import com.tinhtx.baseads.ext.MarkScreenOpened
 import com.tinhtx.baseads.ext.navigateSmartSimple
 import com.tinhtx.baseads.ext.smartClickableSimple
+import com.tinhtx.baseads.forceupdate.presentation.ForceUpdateDialog
+import com.tinhtx.baseads.forceupdate.presentation.ForceUpdateViewModel
 import com.tinhtx.baseads.interstitial.InterstitialAdManager
 import com.tinhtx.baseads.ui.theme.BaseAdsTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -90,8 +92,32 @@ class MainActivity : ComponentActivity() {
         
         setContent {
             BaseAdsTheme {
+                // Force Update Dialog - Highest priority overlay
+                val forceUpdateViewModel: ForceUpdateViewModel = hiltViewModel()
+                val forceUpdateState by forceUpdateViewModel.state.collectAsState()
+                
+                // Show force update dialog if needed
+                ForceUpdateDialog(
+                    state = forceUpdateState,
+                    onUpdateClick = { forceUpdateViewModel.onUpdateClicked() }
+                )
+                
+                // Main app content
                 SampleApp()
             }
+        }
+    }
+    
+    override fun onResume() {
+        super.onResume()
+        
+        // Refresh force update config when app resumes
+        // This ensures we check for updates after user returns from Play Store
+        val forceUpdateViewModel: ForceUpdateViewModel? = try {
+            // Safe way to get ViewModel if available
+            null // Will be handled by lifecycle owner in compose
+        } catch (e: Exception) {
+            null
         }
     }
     

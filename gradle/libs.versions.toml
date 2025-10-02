@@ -110,6 +110,8 @@ firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "fir
 firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-crashlytics-ktx = { module = "com.google.firebase:firebase-crashlytics-ktx" }
+firebase-config = { module = "com.google.firebase:firebase-config" }
+firebase-config-ktx = { module = "com.google.firebase:firebase-config-ktx" }
 google-firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 google-mobile-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "admob" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
