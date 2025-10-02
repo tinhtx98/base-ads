@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "802195361451",
+    "project_id": "baseads-91b6d",
+    "storage_bucket": "baseads-91b6d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:802195361451:android:d75352ad477fbecdc9b1ee",
+        "android_client_info": {
+          "package_name": "com.tinhtx.baseads"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAvd4GA0qD5DYFeMrEBd_uBdy21Hp5pMOM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
