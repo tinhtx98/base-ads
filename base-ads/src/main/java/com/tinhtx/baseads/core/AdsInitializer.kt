@@ -29,6 +29,18 @@ class AdsInitializer @Inject constructor(
 ) {
     
     private var isInitialized = false
+    private var initializationCallbacks = mutableListOf<() -> Unit>()
+    
+    /**
+     * Adds a callback to be executed when ads initialization is complete
+     */
+    fun onInitialized(callback: () -> Unit) {
+        if (isInitialized) {
+            callback()
+        } else {
+            initializationCallbacks.add(callback)
+        }
+    }
     
     /**
      * Initializes the Google Mobile Ads SDK
@@ -86,6 +98,10 @@ class AdsInitializer @Inject constructor(
                     
                     isInitialized = true
                     AdsLogger.logRateSummary()
+                    
+                    // Execute pending callbacks
+                    initializationCallbacks.forEach { it() }
+                    initializationCallbacks.clear()
                 }
                 
             } catch (e: Exception) {

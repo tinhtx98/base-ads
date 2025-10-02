@@ -50,6 +50,7 @@ import androidx.navigation.compose.rememberNavController
 import com.tinhtx.baseads.banner.AdaptiveBanner
 import com.tinhtx.baseads.banner.BannerAdItem
 import com.tinhtx.baseads.banner.BannerAdCard
+import com.tinhtx.baseads.banner.BannerPreloader
 import com.tinhtx.baseads.core.AdUnitsProvider
 import com.tinhtx.baseads.core.AdsConfig
 import com.tinhtx.baseads.core.AnalyticsLogger
@@ -83,12 +84,18 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var vipGate: VipGate
     
+    @Inject
+    lateinit var bannerPreloader: BannerPreloader
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         
         // Preload interstitial ad
         interstitialAdManager.preload()
+        
+        // Preload banner ad for faster display
+        bannerPreloader.preloadBanner(this)
         
         setContent {
             BaseAdsTheme {
@@ -138,7 +145,8 @@ class MainActivity : ComponentActivity() {
                     adUnitsProvider = adUnitsProvider,
                     adsConfig = adsConfig,
                     vipGate = vipGate,
-                    analyticsLogger = analyticsLogger
+                    analyticsLogger = analyticsLogger,
+                    bannerPreloader = bannerPreloader
                 )
             }
         ) { paddingValues ->

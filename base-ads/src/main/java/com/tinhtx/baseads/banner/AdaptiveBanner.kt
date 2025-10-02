@@ -41,6 +41,7 @@ import com.tinhtx.baseads.core.VipGate
  * @param adsConfig Configuration for ads behavior
  * @param vipGate VIP status checker
  * @param analyticsLogger Analytics event logger
+ * @param bannerPreloader Optional preloader for faster banner display
  * @param modifier Compose modifier for styling
  */
 @Composable
@@ -49,6 +50,7 @@ fun AdaptiveBanner(
     adsConfig: AdsConfig,
     vipGate: VipGate,
     analyticsLogger: AnalyticsLogger,
+    bannerPreloader: BannerPreloader? = null,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -82,6 +84,22 @@ fun AdaptiveBanner(
             AdsLogger.d("Banner", "Creating AdView")
             AdsLogger.markBannerRequest()
             
+            // Try to use preloaded banner first
+            bannerPreloader?.getPreloadedAdView()?.let { preloadedAdView ->
+                AdsLogger.d("Banner", "Using preloaded banner ad")
+                AdsLogger.updateAdStatus(bannerId, AdStatus.READY)
+                
+                // Calculate banner height from preloaded ad
+                val displayMetrics = ctx.resources.displayMetrics
+                val displayDensity = displayMetrics.density
+                val heightInPixels = preloadedAdView.adSize?.getHeightInPixels(ctx) ?: (60 * displayDensity).toInt()
+                val heightInDp = (heightInPixels / displayDensity)
+                bannerHeight = heightInDp.dp
+                
+                return@AndroidView preloadedAdView
+            }
+            
+            // Fallback to regular banner loading
             AdView(ctx).apply {
                 // Get actual available width from the context
                 // Use display metrics for full width banner
