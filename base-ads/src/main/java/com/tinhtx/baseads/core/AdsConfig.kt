@@ -37,7 +37,11 @@ data class AdsConfig(
     ),
     val showInterstitialBeforeNavigate: Boolean = false,
     val ironSourceAppKey: String? = "23b463c45",
-    val enableIronSourceLogging: Boolean = true
+    val enableIronSourceLogging: Boolean = true,
+    
+    // Banner refresh settings (for tracking AdMob auto-refresh)
+    val trackBannerRefresh: Boolean = true,
+    val enableBannerRefreshAnalytics: Boolean = true
 ) {
     
     /**
@@ -61,6 +65,12 @@ data class AdsConfig(
      * Checks if banner ads should be shown
      */
     fun shouldShowBanner(): Boolean = enableAds && enableBanner
+    
+    /**
+     * Checks if banner refresh tracking is enabled
+     * Note: Actual refresh is handled by AdMob Console settings
+     */
+    fun shouldTrackBannerRefresh(): Boolean = trackBannerRefresh
     
     /**
      * Checks if ironSource mediation is enabled

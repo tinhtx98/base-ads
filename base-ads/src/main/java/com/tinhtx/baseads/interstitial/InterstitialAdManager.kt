@@ -257,6 +257,108 @@ class InterstitialAdManager @Inject constructor(
     }
     
     /**
+     * Force shows an interstitial ad immediately, bypassing all policy checks.
+     * This method ignores VIP status, cooldowns, daily caps, and route blocklists.
+     * 
+     * @param activity Current activity to show the ad
+     * @param onShown Optional callback when ad is shown/dismissed
+     * @return true if ad was shown, false if no ad available
+     */
+    fun show(
+        activity: Activity,
+        onShown: (() -> Unit)? = null
+    ): Boolean {
+        AdsLogger.d("Interstitial", "Force showing interstitial ad (bypassing policy)")
+        
+        // Check if we have a cached ad
+        val ad = cachedAd
+        if (ad == null) {
+            AdsLogger.d("Interstitial", "No cached ad available for force show")
+            // Try to preload for next time
+            preload()
+            return false
+        }
+        
+        // Set callback for ad events
+        ad.fullScreenContentCallback = object : FullScreenContentCallback() {
+            override fun onAdImpression() {
+                AdsLogger.updateAdStatus(interstitialAdId, AdStatus.SHOWING)
+                AdsLogger.d("Interstitial", "Force interstitial ad impression")
+                AdsLogger.markInterstitialImpression()
+                
+                analyticsLogger.logEvent("ad_interstitial_impression", mapOf(
+                    "type" to "force_show",
+                    "ad_unit_id" to adUnitsProvider.interstitialAdUnitId
+                ))
+            }
+            
+            override fun onAdDismissedFullScreenContent() {
+                AdsLogger.updateAdStatus(interstitialAdId, AdStatus.DISMISSED)
+                AdsLogger.d("Interstitial", "Force interstitial ad dismissed")
+                
+                // Clear cached ad
+                cachedAd = null
+                
+                // Update preferences (even for force show)
+                adsPrefs.setLastInterstitialEpoch(System.currentTimeMillis() / 1000)
+                adsPrefs.incrementTodayInterstitialCount()
+                
+                analyticsLogger.logEvent("ad_interstitial_dismissed", mapOf(
+                    "type" to "force_show",
+                    "today_count" to adsPrefs.getTodayInterstitialCount(),
+                    "total_count" to adsPrefs.getTotalInterstitialShown()
+                ))
+                
+                // Preload next ad
+                preload()
+                
+                // Notify callback
+                onShown?.invoke()
+                
+                AdsLogger.logRateSummary()
+            }
+            
+            override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                val errorMsg = "Code: ${adError.code} - ${adError.message}"
+                AdsLogger.updateAdStatus(interstitialAdId, AdStatus.FAILED, errorMsg)
+                AdsLogger.e(
+                    "Interstitial",
+                    "Failed to show force interstitial ad. $errorMsg, Domain: ${adError.domain}"
+                )
+                
+                // Clear cached ad
+                cachedAd = null
+                
+                analyticsLogger.logEvent("ad_interstitial_show_failed", mapOf(
+                    "error_code" to adError.code,
+                    "error_message" to adError.message,
+                    "error_domain" to adError.domain,
+                    "type" to "force_show"
+                ))
+                
+                // Preload next ad
+                preload()
+            }
+        }
+        
+        // Show the ad
+        return try {
+            ad.show(activity)
+            true
+        } catch (e: Exception) {
+            AdsLogger.e("Interstitial", "Exception force showing interstitial ad", e)
+            
+            // Clear cached ad
+            cachedAd = null
+            
+            // Preload next ad
+            preload()
+            
+            false
+        }
+    }
+    
+    /**
      * Checks if the ad passes policy requirements for showing
      */
     private fun passPolicy(nowMs: Long, route: String?): Boolean {
@@ -315,6 +417,14 @@ class InterstitialAdManager @Inject constructor(
         
         AdsLogger.d("Policy", "All policy checks passed")
         return true
+    }
+    
+    /**
+     * Checks if an interstitial ad is ready to be shown
+     * @return true if ad is loaded and ready, false otherwise
+     */
+    fun isReady(): Boolean {
+        return cachedAd != null && !isLoading
     }
     
     /**

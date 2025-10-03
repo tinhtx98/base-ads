@@ -98,7 +98,8 @@ fun BannerAdItem(
     topPadding: androidx.compose.ui.unit.Dp = 8.dp,
     bottomPadding: androidx.compose.ui.unit.Dp = 8.dp,
     showBackground: Boolean = false,
-    adId: String = "banner_ad"
+    adId: String = "banner_ad",
+    trackRefresh: Boolean = true
 ) {
     val context = LocalContext.current
     
@@ -129,6 +130,7 @@ fun BannerAdItem(
     }
     
     var bannerHeight by remember(adId) { mutableStateOf(60.dp) }
+    var refreshCount by remember(adId) { mutableStateOf(0) }
     
     Box(modifier = containerModifier) {
         AndroidView(
@@ -166,15 +168,31 @@ fun BannerAdItem(
                     
                     adListener = object : AdListener() {
                         override fun onAdLoaded() {
-                            AdsLogger.updateAdStatus(adId, AdStatus.READY)
-                            AdsLogger.d("BannerAdItem", "[$adId] Ad loaded")
+                            refreshCount++
+                            val isInitialLoad = refreshCount == 1
+                            val isRefresh = refreshCount > 1
                             
-                            analyticsLogger.logEvent("ad_banner_item_loaded", mapOf(
+                            AdsLogger.updateAdStatus(adId, AdStatus.READY)
+                            AdsLogger.d("BannerAdItem", "[$adId] Ad loaded (refresh #$refreshCount)")
+                            
+                            val eventParams = mutableMapOf(
                                 "ad_unit_id" to adUnitsProvider.bannerAdUnitId,
                                 "ad_id" to adId,
-                                "ad_width" to adaptiveSize.width,
-                                "ad_height" to adaptiveSize.height
-                            ))
+                                "ad_width" to adaptiveSize.width.toString(),
+                                "ad_height" to adaptiveSize.height.toString()
+                            )
+                            
+                            // Add refresh tracking if enabled
+                            if (trackRefresh && adsConfig.shouldTrackBannerRefresh()) {
+                                eventParams.putAll(mapOf(
+                                    "refresh_count" to refreshCount.toString(),
+                                    "refresh_type" to "admob_native",
+                                    "is_initial_load" to isInitialLoad.toString(),
+                                    "is_auto_refresh" to isRefresh.toString()
+                                ))
+                            }
+                            
+                            analyticsLogger.logEvent("ad_banner_item_loaded", eventParams)
                         }
                         
                         override fun onAdFailedToLoad(loadAdError: LoadAdError) {
@@ -182,38 +200,65 @@ fun BannerAdItem(
                             AdsLogger.updateAdStatus(adId, AdStatus.FAILED, errorMsg)
                             AdsLogger.e(
                                 "BannerAdItem",
-                                "[$adId] Ad failed: $errorMsg"
+                                "[$adId] Ad failed (refresh #$refreshCount): $errorMsg"
                             )
                             
-                            analyticsLogger.logEvent("ad_banner_item_load_failed", mapOf(
-                                "error_code" to loadAdError.code,
+                            val eventParams = mutableMapOf(
+                                "error_code" to loadAdError.code.toString(),
                                 "error_message" to loadAdError.message,
                                 "ad_unit_id" to adUnitsProvider.bannerAdUnitId,
                                 "ad_id" to adId
-                            ))
+                            )
+                            
+                            // Add refresh tracking if enabled
+                            if (trackRefresh && adsConfig.shouldTrackBannerRefresh()) {
+                                eventParams.putAll(mapOf(
+                                    "refresh_count" to refreshCount.toString(),
+                                    "refresh_type" to "admob_native",
+                                    "is_auto_refresh" to (refreshCount > 0).toString()
+                                ))
+                            }
+                            
+                            analyticsLogger.logEvent("ad_banner_item_load_failed", eventParams)
                         }
                         
                         override fun onAdImpression() {
                             AdsLogger.updateAdStatus(adId, AdStatus.SHOWING)
-                            AdsLogger.d("BannerAdItem", "[$adId] Impression")
+                            AdsLogger.d("BannerAdItem", "[$adId] Impression (refresh #$refreshCount)")
                             
-                            analyticsLogger.logEvent("ad_banner_item_impression", mapOf(
+                            val eventParams = mutableMapOf(
                                 "ad_unit_id" to adUnitsProvider.bannerAdUnitId,
                                 "ad_id" to adId
-                            ))
+                            )
+                            
+                            // Add refresh tracking if enabled
+                            if (trackRefresh && adsConfig.shouldTrackBannerRefresh()) {
+                                eventParams["refresh_count"] = refreshCount.toString()
+                            }
+                            
+                            analyticsLogger.logEvent("ad_banner_item_impression", eventParams)
                         }
                         
                         override fun onAdClicked() {
-                            AdsLogger.d("BannerAdItem", "[$adId] Clicked")
+                            AdsLogger.d("BannerAdItem", "[$adId] Clicked (refresh #$refreshCount)")
                             
-                            analyticsLogger.logEvent("ad_banner_item_clicked", mapOf(
+                            val eventParams = mutableMapOf(
                                 "ad_unit_id" to adUnitsProvider.bannerAdUnitId,
                                 "ad_id" to adId
-                            ))
+                            )
+                            
+                            // Add refresh tracking if enabled
+                            if (trackRefresh && adsConfig.shouldTrackBannerRefresh()) {
+                                eventParams["refresh_count"] = refreshCount.toString()
+                            }
+                            
+                            analyticsLogger.logEvent("ad_banner_item_clicked", eventParams)
                         }
                     }
                     
-                    // Load ad
+                    // Load ad with AdMob native refresh
+                    // NOTE: Auto-refresh is configured in AdMob Console, not in code
+                    // This ensures AdMob handles refresh timing optimally
                     val adRequest = AdRequest.Builder().build()
                     loadAd(adRequest)
                     
@@ -222,6 +267,7 @@ fun BannerAdItem(
             },
             update = { adView ->
                 // Don't reload on update to prevent flickering
+                // AdMob native refresh handles automatic refreshing
                 AdsLogger.d("BannerAdItem", "[$adId] Update called (no action)")
             }
         )
@@ -231,7 +277,7 @@ fun BannerAdItem(
         AdsLogger.d("BannerAdItem", "[$adId] Composed")
         
         onDispose {
-            AdsLogger.d("BannerAdItem", "[$adId] Disposed")
+            AdsLogger.d("BannerAdItem", "[$adId] Disposed (total refreshes: $refreshCount)")
             AdsLogger.unregisterAd(adId)
         }
     }

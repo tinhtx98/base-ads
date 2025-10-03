@@ -51,6 +51,7 @@ fun AdaptiveBanner(
     vipGate: VipGate,
     analyticsLogger: AnalyticsLogger,
     bannerPreloader: BannerPreloader? = null,
+    trackRefresh: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -73,6 +74,7 @@ fun AdaptiveBanner(
     }
     
     var bannerHeight by remember { mutableStateOf(60.dp) } // Start with estimated height
+    var refreshCount by remember { mutableStateOf(0) }
     
     AndroidView(
         modifier = modifier
@@ -141,47 +143,75 @@ fun AdaptiveBanner(
                 // Set ad listener
                 adListener = object : AdListener() {
                     override fun onAdLoaded() {
+                        refreshCount++
                         AdsLogger.updateAdStatus(bannerId, AdStatus.READY)
-                        AdsLogger.d("Banner", "Banner ad loaded successfully")
+                        AdsLogger.d("Banner", "Banner loaded (refresh #$refreshCount)")
                         AdsLogger.markBannerImpression()
                         
-                        analyticsLogger.logEvent("ad_banner_loaded", mapOf(
-                            "ad_unit_id" to adUnitsProvider.bannerAdUnitId,
-                            "ad_width" to adaptiveSize.width,
-                            "ad_height" to adaptiveSize.height
-                        ))
+                        if (trackRefresh && adsConfig.shouldTrackBannerRefresh()) {
+                            analyticsLogger.logEvent("ad_banner_loaded", mapOf(
+                                "ad_unit_id" to adUnitsProvider.bannerAdUnitId,
+                                "ad_width" to adaptiveSize.width.toString(),
+                                "ad_height" to adaptiveSize.height.toString(),
+                                "refresh_count" to refreshCount.toString(),
+                                "refresh_type" to "admob_native",
+                                "is_auto_refresh" to (refreshCount > 1).toString()
+                            ))
+                        } else {
+                            analyticsLogger.logEvent("ad_banner_loaded", mapOf(
+                                "ad_unit_id" to adUnitsProvider.bannerAdUnitId,
+                                "ad_width" to adaptiveSize.width.toString(),
+                                "ad_height" to adaptiveSize.height.toString()
+                            ))
+                        }
                     }
                     
                     override fun onAdFailedToLoad(loadAdError: LoadAdError) {
                         val errorMsg = "Code: ${loadAdError.code} - ${loadAdError.message}"
                         AdsLogger.updateAdStatus(bannerId, AdStatus.FAILED, errorMsg)
-                        AdsLogger.e(
-                            "Banner",
-                            "Banner ad failed to load. $errorMsg, Domain: ${loadAdError.domain}"
-                        )
+                        AdsLogger.e("Banner", "Banner refresh failed: $errorMsg")
                         
-                        analyticsLogger.logEvent("ad_banner_load_failed", mapOf(
-                            "error_code" to loadAdError.code,
-                            "error_message" to loadAdError.message,
-                            "error_domain" to loadAdError.domain,
-                            "ad_unit_id" to adUnitsProvider.bannerAdUnitId
-                        ))
+                        if (trackRefresh && adsConfig.shouldTrackBannerRefresh()) {
+                            analyticsLogger.logEvent("ad_banner_refresh_failed", mapOf(
+                                "error_code" to loadAdError.code.toString(),
+                                "error_message" to loadAdError.message,
+                                "error_domain" to loadAdError.domain,
+                                "ad_unit_id" to adUnitsProvider.bannerAdUnitId,
+                                "refresh_count" to refreshCount.toString()
+                            ))
+                        } else {
+                            analyticsLogger.logEvent("ad_banner_load_failed", mapOf(
+                                "error_code" to loadAdError.code.toString(),
+                                "error_message" to loadAdError.message,
+                                "error_domain" to loadAdError.domain,
+                                "ad_unit_id" to adUnitsProvider.bannerAdUnitId
+                            ))
+                        }
                     }
                     
                     override fun onAdImpression() {
                         AdsLogger.updateAdStatus(bannerId, AdStatus.SHOWING)
-                        AdsLogger.d("Banner", "Banner ad impression")
+                        AdsLogger.d("Banner", "Banner impression (refresh #$refreshCount)")
                         
-                        analyticsLogger.logEvent("ad_banner_impression", mapOf(
-                            "ad_unit_id" to adUnitsProvider.bannerAdUnitId
-                        ))
+                        if (trackRefresh && adsConfig.shouldTrackBannerRefresh()) {
+                            analyticsLogger.logEvent("ad_banner_impression", mapOf(
+                                "ad_unit_id" to adUnitsProvider.bannerAdUnitId,
+                                "refresh_count" to refreshCount.toString(),
+                                "is_refreshed_ad" to (refreshCount > 1).toString()
+                            ))
+                        } else {
+                            analyticsLogger.logEvent("ad_banner_impression", mapOf(
+                                "ad_unit_id" to adUnitsProvider.bannerAdUnitId
+                            ))
+                        }
                     }
                     
                     override fun onAdClicked() {
-                        AdsLogger.d("Banner", "Banner ad clicked")
+                        AdsLogger.d("Banner", "Banner clicked (refresh #$refreshCount)")
                         
                         analyticsLogger.logEvent("ad_banner_clicked", mapOf(
-                            "ad_unit_id" to adUnitsProvider.bannerAdUnitId
+                            "ad_unit_id" to adUnitsProvider.bannerAdUnitId,
+                            "refresh_count" to refreshCount
                         ))
                     }
                     
@@ -194,23 +224,24 @@ fun AdaptiveBanner(
                     }
                 }
                 
-                // Load the ad
+                // Load ad once - AdMob handles auto-refresh
                 val adRequest = AdRequest.Builder().build()
                 loadAd(adRequest)
                 
-                AdsLogger.d("Banner", "Banner ad request sent")
+                AdsLogger.d("Banner", "Banner initialized - AdMob will handle auto-refresh")
             }
         },
         update = { adView ->
-            // Handle updates if needed (e.g., configuration changes)
-            AdsLogger.d("Banner", "AdView update called")
+            // AdMob handles refresh automatically
+            // No manual intervention needed
+            AdsLogger.d("Banner", "AdView update - AdMob native refresh active")
         }
     )
     
     // Clean up when composable is disposed
     DisposableEffect(Unit) {
         onDispose {
-            AdsLogger.d("Banner", "Banner composable disposed")
+            AdsLogger.d("Banner", "Banner disposed (total refreshes: $refreshCount)")
             AdsLogger.unregisterAd(bannerId)
         }
     }
