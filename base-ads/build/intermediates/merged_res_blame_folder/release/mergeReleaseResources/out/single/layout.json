@@ -1,0 +1,38 @@
+[
+    {
+        "merged": "com.tinhtx.baseads.library.base-ads-release-67:/layout/notification_template_part_time.xml",
+        "source": "com.tinhtx.baseads.library.base-ads-core-1.15.0-21:/layout/notification_template_part_time.xml"
+    },
+    {
+        "merged": "com.tinhtx.baseads.library.base-ads-release-67:/layout/custom_dialog.xml",
+        "source": "com.tinhtx.baseads.library.base-ads-core-1.15.0-21:/layout/custom_dialog.xml"
+    },
+    {
+        "merged": "com.tinhtx.baseads.library.base-ads-release-67:/layout/ime_base_split_test_activity.xml",
+        "source": "com.tinhtx.baseads.library.base-ads-core-1.15.0-21:/layout/ime_base_split_test_activity.xml"
+    },
+    {
+        "merged": "com.tinhtx.baseads.library.base-ads-release-67:/layout/notification_template_part_chronometer.xml",
+        "source": "com.tinhtx.baseads.library.base-ads-core-1.15.0-21:/layout/notification_template_part_chronometer.xml"
+    },
+    {
+        "merged": "com.tinhtx.baseads.library.base-ads-release-67:/layout/browser_actions_context_menu_row.xml",
+        "source": "com.tinhtx.baseads.library.base-ads-browser-1.8.0-39:/layout/browser_actions_context_menu_row.xml"
+    },
+    {
+        "merged": "com.tinhtx.baseads.library.base-ads-release-67:/layout/offline_ads_dialog.xml",
+        "source": "com.tinhtx.baseads.library.base-ads-play-services-ads-24.6.0-58:/layout/offline_ads_dialog.xml"
+    },
+    {
+        "merged": "com.tinhtx.baseads.library.base-ads-release-67:/layout/browser_actions_context_menu_page.xml",
+        "source": "com.tinhtx.baseads.library.base-ads-browser-1.8.0-39:/layout/browser_actions_context_menu_page.xml"
+    },
+    {
+        "merged": "com.tinhtx.baseads.library.base-ads-release-67:/layout/admob_empty_layout.xml",
+        "source": "com.tinhtx.baseads.library.base-ads-play-services-ads-api-24.6.0-43:/layout/admob_empty_layout.xml"
+    },
+    {
+        "merged": "com.tinhtx.baseads.library.base-ads-release-67:/layout/ime_secondary_split_test_activity.xml",
+        "source": "com.tinhtx.baseads.library.base-ads-core-1.15.0-21:/layout/ime_secondary_split_test_activity.xml"
+    }
+]

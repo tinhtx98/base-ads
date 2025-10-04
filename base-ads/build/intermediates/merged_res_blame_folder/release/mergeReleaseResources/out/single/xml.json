@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.tinhtx.baseads.library.base-ads-release-67:/xml/ga_ad_services_config.xml",
+        "source": "com.tinhtx.baseads.library.base-ads-play-services-measurement-api-22.1.2-47:/xml/ga_ad_services_config.xml"
+    },
+    {
+        "merged": "com.tinhtx.baseads.library.base-ads-release-67:/xml/image_share_filepaths.xml",
+        "source": "com.tinhtx.baseads.library.base-ads-browser-1.8.0-39:/xml/image_share_filepaths.xml"
+    }
+]

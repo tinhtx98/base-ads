@@ -1,0 +1,6 @@
+[
+    {
+        "merged": "com.tinhtx.baseads.library.base-ads-release-67:/drawable-v21/notification_action_background.xml",
+        "source": "com.tinhtx.baseads.library.base-ads-core-1.15.0-21:/drawable-v21/notification_action_background.xml"
+    }
+]
