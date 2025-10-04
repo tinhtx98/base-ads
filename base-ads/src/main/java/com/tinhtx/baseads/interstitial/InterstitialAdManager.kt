@@ -15,6 +15,8 @@ import com.google.android.gms.ads.FullScreenContentCallback
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import com.google.android.gms.ads.OnPaidEventListener
+import com.google.android.gms.ads.AdValue
 import com.tinhtx.baseads.core.AdUnitsProvider
 import com.tinhtx.baseads.core.AdsConfig
 import com.tinhtx.baseads.core.AdsConstants
@@ -41,12 +43,14 @@ class InterstitialAdManager @Inject constructor(
     private val adsConfig: AdsConfig,
     private val vipGate: VipGate,
     private val analyticsLogger: AnalyticsLogger,
-    private val adsPrefs: AdsPrefs
+    private val adsPrefs: AdsPrefs,
+    private val adRevenueReporter: com.tinhtx.baseads.core.AdRevenueReporter
 ) {
     
     private var cachedAd: InterstitialAd? = null
     private var isLoading = false
     private val lastScreenOpenAtMs = AtomicLong(0)
+    @Volatile private var lastShowRoute: String? = null
     
     private val interstitialAdId = "interstitial_main"  // Unique ID for interstitial tracking
     
@@ -100,6 +104,17 @@ class InterstitialAdManager @Inject constructor(
                 override fun onAdLoaded(interstitialAd: InterstitialAd) {
                     cachedAd = interstitialAd
                     isLoading = false
+
+                    // Attach ILRD listener (Impression Level Revenue Data)
+                    interstitialAd.onPaidEventListener = OnPaidEventListener { adValue: AdValue ->
+                        adRevenueReporter.reportInterstitialRevenue(
+                            adUnitsProvider.interstitialAdUnitId,
+                            adValue.valueMicros,
+                            adValue.currencyCode,
+                            adValue.precisionType,
+                            lastShowRoute
+                        )
+                    }
                     
                     AdsLogger.updateAdStatus(interstitialAdId, AdStatus.READY)
                     AdsLogger.d("Interstitial", "Interstitial ad loaded successfully")
@@ -163,7 +178,8 @@ class InterstitialAdManager @Inject constructor(
             return@suspendCancellableCoroutine
         }
         
-        AdsLogger.d("Interstitial", "Showing interstitial ad")
+    AdsLogger.d("Interstitial", "Showing interstitial ad")
+    lastShowRoute = currentRoute
         
         // Set callback for ad events
         ad.fullScreenContentCallback = object : FullScreenContentCallback() {
@@ -279,7 +295,7 @@ class InterstitialAdManager @Inject constructor(
             return false
         }
         
-        // Set callback for ad events
+    // Set callback for ad events
         ad.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdImpression() {
                 AdsLogger.updateAdStatus(interstitialAdId, AdStatus.SHOWING)
@@ -342,6 +358,7 @@ class InterstitialAdManager @Inject constructor(
         }
         
         // Show the ad
+        lastShowRoute = null // force show has no contextual route
         return try {
             ad.show(activity)
             true

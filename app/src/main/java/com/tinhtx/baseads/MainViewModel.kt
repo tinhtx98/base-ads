@@ -15,6 +15,8 @@ import com.tinhtx.baseads.core.TestVipGate
 import com.tinhtx.baseads.core.VipGate
 import com.tinhtx.baseads.data.AdsPrefs
 import com.tinhtx.baseads.interstitial.InterstitialAdManager
+import com.tinhtx.baseads.mediation.VungleBiddingManager
+import com.tinhtx.baseads.mediation.IronSourceBiddingManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,7 +33,9 @@ class MainViewModel @Inject constructor(
     private val adsPrefs: AdsPrefs,
     private val interstitialAdManager: InterstitialAdManager,
     private val adsConfig: AdsConfig,
-    private val adUnitsProvider: AdUnitsProvider
+    private val adUnitsProvider: AdUnitsProvider,
+    private val vungleBiddingManager: VungleBiddingManager,
+    private val ironSourceBiddingManager: IronSourceBiddingManager
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(MainUiState())
@@ -61,12 +65,16 @@ class MainViewModel @Inject constructor(
             val debugInfo = adsPrefs.getDebugInfo()
             val interstitialDebugInfo = interstitialAdManager.getDebugInfo()
             
-            // Add ironSource configuration info
-            val ironSourceInfo = mapOf(
-                "ironSource Enabled" to adsConfig.isIronSourceEnabled(),
-                "ironSource App Key" to (adsConfig.getIronSourceAppKeySafe()?.take(8)?.plus("...") ?: "Not Set"),
-                "ironSource Logging" to adsConfig.enableIronSourceLogging
+            // Add bidding mediation configuration info
+            val mediationInfo = mapOf(
+                "Bidding Optimization" to adsConfig.isBiddingOptimizationEnabled(),
+                "Mediation Analytics" to adsConfig.shouldTrackMediationAnalytics(),
+                "Mediation Type" to "Bidding (Real-time)"
             )
+            
+            // Add bidding partners debug info
+            val vungleInfo = vungleBiddingManager.getDebugInfo()
+            val ironSourceInfo = ironSourceBiddingManager.getDebugInfo()
             
             // Add AdMob ad unit information
             val adUnitsInfo = mapOf(
@@ -80,7 +88,7 @@ class MainViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(
                 isVip = isVip,
                 canToggleVip = vipGate is TestVipGate,
-                debugInfo = debugInfo + interstitialDebugInfo + ironSourceInfo + adUnitsInfo
+                debugInfo = debugInfo + interstitialDebugInfo + mediationInfo + vungleInfo + ironSourceInfo + adUnitsInfo
             )
         }
     }

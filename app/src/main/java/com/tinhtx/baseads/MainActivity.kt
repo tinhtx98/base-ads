@@ -55,6 +55,7 @@ import com.tinhtx.baseads.core.AdUnitsProvider
 import com.tinhtx.baseads.core.AdsConfig
 import com.tinhtx.baseads.core.AnalyticsLogger
 import com.tinhtx.baseads.core.VipGate
+import com.tinhtx.baseads.core.AdRevenueReporter
 import com.tinhtx.baseads.ext.MarkScreenOpened
 import com.tinhtx.baseads.ext.navigateSmartSimple
 import com.tinhtx.baseads.ext.smartClickableSimple
@@ -86,6 +87,9 @@ class MainActivity : ComponentActivity() {
     
     @Inject
     lateinit var bannerPreloader: BannerPreloader
+
+    @Inject
+    lateinit var adRevenueReporter: AdRevenueReporter
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -602,6 +606,7 @@ class MainActivity : ComponentActivity() {
                                 adsConfig = adsConfig,
                                 vipGate = vipGate,
                                 analyticsLogger = analyticsLogger,
+                                adRevenueReporter = adRevenueReporter,
                                 topPadding = 16.dp,
                                 bottomPadding = 16.dp,
                                 showBackground = false,

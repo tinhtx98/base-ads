@@ -28,8 +28,8 @@ import javax.inject.Singleton
 object SampleAppAdsModule {
     
     /**
-     * Provides custom AdsConfig with ironSource configuration for sample app
-     * Shows how to configure ironSource app key in your app
+     * Provides custom AdsConfig with bidding mediation configuration for sample app
+     * Shows how to configure bidding optimization - no app keys needed
      */
     @Provides
     @Singleton
@@ -46,9 +46,17 @@ object SampleAppAdsModule {
             ),
             showInterstitialBeforeNavigate = false,
             
-            // 🎯 ironSource configuration
-            ironSourceAppKey = "23b463c45", // ironSource app key
-            enableIronSourceLogging = BuildConfig.DEBUG
+            // 🎯 Bidding mediation configuration (no app keys needed)
+            enableBiddingOptimization = true,
+            enableMediationAnalytics = true, // ✅ Keep enabled in release for mediation performance
+            
+            // Vungle Liftoff Monetize bidding
+            enableVungleBidding = true,
+            enableVungleLogging = BuildConfig.DEBUG, // Only log in debug builds
+
+            // ironSource bidding
+            enableIronSourceBidding = true,
+            enableIronSourceLogging = BuildConfig.DEBUG // Only log in debug builds
         )
     }
     
@@ -73,7 +81,7 @@ object SampleAppAdsModule {
             ProductionAdUnitsProvider(
                 // 🎯 Your REAL AdMob Ad Unit IDs for production
                 bannerUnitId = "ca-app-pub-8819120490234533/8043624743", // Your banner ad unit ID
-                interstitialUnitId = "ca-app-pub-8819120490234533/XXXXXXXXXX", // Replace with your real interstitial ID
+                interstitialUnitId = "ca-app-pub-8819120490234533/1234567890", // ⚠️ REPLACE WITH YOUR REAL INTERSTITIAL ID
             )
         }
     }

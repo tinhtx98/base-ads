@@ -26,11 +26,13 @@ android {
     buildTypes {
         debug {
             buildConfigField("boolean", "DEBUG_LOG_ENABLED", "true")
-            buildConfigField("String", "IRONSOURCE_APP_KEY", "\"23b463c45\"")
+            buildConfigField("String", "MEDIATION_TYPE", "\"bidding\"")
+            buildConfigField("String", "VUNGLE_PARTNER", "\"vungle_liftoff\"")
         }
         release {
             buildConfigField("boolean", "DEBUG_LOG_ENABLED", "false")
-            buildConfigField("String", "IRONSOURCE_APP_KEY", "\"23b463c45\"")
+            buildConfigField("String", "MEDIATION_TYPE", "\"bidding\"")
+            buildConfigField("String", "VUNGLE_PARTNER", "\"vungle_liftoff\"")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -59,11 +61,14 @@ android {
 }
 
 dependencies {
-    // Google Mobile Ads SDK
+    // Google Mobile Ads SDK (with bidding mediation support)
     implementation(libs.play.services.ads.v2460)
     
-    // ironSource Mediation
-    implementation("com.ironsource.sdk:mediationsdk:8.3.0")
+    // Bidding mediation partners (for real-time bidding)
+    // Vungle Liftoff Monetize - Bidding adapter
+    implementation("com.google.ads.mediation:vungle:7.4.0.0")
+    // ironSource Bidding adapter
+    implementation(libs.ironsource.mediation.adapter)
     
     // Firebase Analytics
     implementation(platform(libs.firebase.bom.v3351))

@@ -9,15 +9,19 @@ package com.tinhtx.baseads.core
 
 /**
  * Configuration class for controlling ads behavior throughout the app.
- * 
+ * Pure bidding architecture (AdMob primary) with optional secondary bidders (ironSource, Vungle).
+ *
  * @param enableAds Master toggle for all ads functionality
  * @param enableInterstitial Toggle for interstitial ads specifically
  * @param enableBanner Toggle for banner ads specifically
  * @param interstitialBlocklistRoutes Set of route names where interstitials should never show
- * @param showInterstitialBeforeNavigate If true, shows interstitial before navigation;
- *                                      if false, shows after navigation completion
- * @param ironSourceAppKey ironSource app key for mediation (null to disable ironSource)
- * @param enableIronSourceLogging Enable ironSource SDK logging for debugging
+ * @param showInterstitialBeforeNavigate If true: show before navigation, else after
+ * @param enableBiddingOptimization Enable internal bidding-related optimizations/heuristics
+ * @param enableMediationAnalytics Enable logging/analytics for mediation events
+ * @param enableVungleBidding Enable Vungle (Liftoff Monetize) as a bidding partner
+ * @param enableVungleLogging Enable verbose logging for Vungle bidder (analytics side only)
+ * @param enableIronSourceBidding Enable ironSource as a bidding partner
+ * @param enableIronSourceLogging Enable verbose logging for ironSource bidder (analytics side only)
  */
 data class AdsConfig(
     val enableAds: Boolean = true,
@@ -36,7 +40,16 @@ data class AdsConfig(
         "billing"
     ),
     val showInterstitialBeforeNavigate: Boolean = false,
-    val ironSourceAppKey: String? = "23b463c45",
+    
+    // Bidding mediation configuration (no app keys needed)
+    val enableBiddingOptimization: Boolean = true,
+    val enableMediationAnalytics: Boolean = true,
+    
+    // Vungle Liftoff Monetize bidding configuration
+    val enableVungleBidding: Boolean = true,
+    val enableVungleLogging: Boolean = true,
+    // ironSource bidding configuration
+    val enableIronSourceBidding: Boolean = true,
     val enableIronSourceLogging: Boolean = true,
     
     // Banner refresh settings (for tracking AdMob auto-refresh)
@@ -73,16 +86,32 @@ data class AdsConfig(
     fun shouldTrackBannerRefresh(): Boolean = trackBannerRefresh
     
     /**
-     * Checks if ironSource mediation is enabled
+     * Checks if bidding mediation optimization is enabled
      */
-    fun isIronSourceEnabled(): Boolean {
-        return !ironSourceAppKey.isNullOrBlank()
-    }
+    fun isBiddingOptimizationEnabled(): Boolean = enableBiddingOptimization
     
     /**
-     * Gets the ironSource app key safely
+     * Checks if mediation analytics should be tracked
      */
-    fun getIronSourceAppKeySafe(): String? {
-        return ironSourceAppKey?.takeIf { it.isNotBlank() }
-    }
+    fun shouldTrackMediationAnalytics(): Boolean = enableMediationAnalytics
+    
+    /**
+     * Checks if Vungle Liftoff bidding is enabled
+     */
+    fun isVungleBiddingEnabled(): Boolean = enableVungleBidding
+    
+    /**
+     * Checks if Vungle logging should be enabled
+     */
+    fun shouldEnableVungleLogging(): Boolean = enableVungleLogging
+
+    /**
+     * Checks if ironSource bidding is enabled
+     */
+    fun isIronSourceBiddingEnabled(): Boolean = enableIronSourceBidding
+
+    /**
+     * Checks if ironSource logging should be enabled
+     */
+    fun shouldEnableIronSourceLogging(): Boolean = enableIronSourceLogging
 }

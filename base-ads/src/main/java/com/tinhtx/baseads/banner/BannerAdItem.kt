@@ -48,6 +48,8 @@ import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.OnPaidEventListener
+import com.google.android.gms.ads.AdValue
 import com.google.android.gms.ads.LoadAdError
 import com.tinhtx.baseads.core.AdUnitsProvider
 import com.tinhtx.baseads.core.AdsConfig
@@ -94,6 +96,7 @@ fun BannerAdItem(
     adsConfig: AdsConfig,
     vipGate: VipGate,
     analyticsLogger: AnalyticsLogger,
+    adRevenueReporter: com.tinhtx.baseads.core.AdRevenueReporter,
     modifier: Modifier = Modifier,
     topPadding: androidx.compose.ui.unit.Dp = 8.dp,
     bottomPadding: androidx.compose.ui.unit.Dp = 8.dp,
@@ -256,6 +259,17 @@ fun BannerAdItem(
                         }
                     }
                     
+                    // Attach ILRD listener for banner revenue
+                    onPaidEventListener = OnPaidEventListener { adValue: AdValue ->
+                        adRevenueReporter.reportInterstitialRevenue(
+                            adUnitsProvider.bannerAdUnitId,
+                            adValue.valueMicros,
+                            adValue.currencyCode,
+                            adValue.precisionType,
+                            route = null
+                        )
+                    }
+
                     // Load ad with AdMob native refresh
                     // NOTE: Auto-refresh is configured in AdMob Console, not in code
                     // This ensures AdMob handles refresh timing optimally

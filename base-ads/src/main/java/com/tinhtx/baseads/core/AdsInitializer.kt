@@ -11,7 +11,6 @@ import android.content.Context
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
-import com.ironsource.mediationsdk.IronSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,7 +24,9 @@ import javax.inject.Singleton
 @Singleton
 class AdsInitializer @Inject constructor(
     private val analyticsLogger: AnalyticsLogger,
-    private val adsConfig: AdsConfig
+    private val adsConfig: AdsConfig,
+    private val vungleBiddingManager: com.tinhtx.baseads.mediation.VungleBiddingManager,
+    private val ironSourceBiddingManager: com.tinhtx.baseads.mediation.IronSourceBiddingManager
 ) {
     
     private var isInitialized = false
@@ -62,8 +63,12 @@ class AdsInitializer @Inject constructor(
         // Initialize on background thread to avoid blocking main thread
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Initialize ironSource if configured
-                initializeIronSourceIfNeeded(context)
+                // Note: With bidding mediation, no manual SDK initialization needed
+                // All mediation is handled automatically by Google Mobile Ads SDK
+                AdsLogger.i("Initializer", "Using bidding mediation - automatic configuration")
+                
+                // Initialize bidding analytics for mediation partners
+                initializeBiddingPartners()
                 
                 // Configure test devices if provided
                 if (testDeviceIds.isNotEmpty()) {
@@ -141,43 +146,20 @@ class AdsInitializer @Inject constructor(
     }
     
     /**
-     * Initializes ironSource SDK if app key is configured
+     * Initializes bidding mediation partners analytics
      */
-    private fun initializeIronSourceIfNeeded(context: Context) {
-        val appKey = adsConfig.getIronSourceAppKeySafe()
-        if (appKey != null) {
-            try {
-                AdsLogger.i("Initializer", "Initializing ironSource with app key: ${appKey.take(8)}...")
-                
-                // Enable logging if configured
-                if (adsConfig.enableIronSourceLogging) {
-                    IronSource.setAdaptersDebug(true)
-                    IronSource.shouldTrackNetworkState(context, true)
-                    AdsLogger.d("Initializer", "ironSource debug logging enabled")
-                }
-                
-                // Initialize ironSource SDK
-                IronSource.init(context, appKey, IronSource.AD_UNIT.BANNER, IronSource.AD_UNIT.INTERSTITIAL)
-                
-                AdsLogger.i("Initializer", "ironSource initialization completed")
-                
-                // Log analytics event
-                analyticsLogger.logEvent("ironsource_init", mapOf(
-                    "app_key_prefix" to appKey.take(8),
-                    "logging_enabled" to adsConfig.enableIronSourceLogging
-                ))
-                
-            } catch (e: Exception) {
-                AdsLogger.e("Initializer", "Failed to initialize ironSource", e)
-                
-                // Log failed initialization
-                analyticsLogger.logEvent("ironsource_init", mapOf(
-                    "initialization_status" to "failed",
-                    "error" to e.message
-                ))
-            }
-        } else {
-            AdsLogger.d("Initializer", "ironSource app key not configured, skipping initialization")
+    private fun initializeBiddingPartners() {
+        try {
+            AdsLogger.i("Initializer", "Initializing bidding mediation partners")
+            
+            // Initialize bidding partner analytics
+            vungleBiddingManager.initialize()
+            ironSourceBiddingManager.initialize()
+            
+            AdsLogger.i("Initializer", "Bidding partners initialization completed")
+            
+        } catch (e: Exception) {
+            AdsLogger.e("Initializer", "Failed to initialize bidding partners", e)
         }
     }
 }

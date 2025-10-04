@@ -18,6 +18,9 @@ import com.tinhtx.baseads.core.AdsConfig
 import com.tinhtx.baseads.core.AdsInitializer
 import com.tinhtx.baseads.core.AdsLogger
 import com.tinhtx.baseads.core.AnalyticsLogger
+import com.tinhtx.baseads.core.AdRevenueReporter
+import com.google.android.gms.ads.OnPaidEventListener
+import com.google.android.gms.ads.AdValue
 import com.tinhtx.baseads.core.VipGate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +44,8 @@ class BannerPreloader @Inject constructor(
     private val adsConfig: AdsConfig,
     private val vipGate: VipGate,
     private val analyticsLogger: AnalyticsLogger,
-    private val adsInitializer: AdsInitializer
+    private val adsInitializer: AdsInitializer,
+    private val adRevenueReporter: AdRevenueReporter
 ) {
     
     private var preloadedAdView: AdView? = null
@@ -104,6 +108,17 @@ class BannerPreloader @Inject constructor(
                                     )
                                 )
                             }
+                        }
+
+                        // Attach ILRD (paid) listener
+                        onPaidEventListener = OnPaidEventListener { adValue: AdValue ->
+                            adRevenueReporter.reportInterstitialRevenue( // reuse generic method name
+                                adUnitsProvider.bannerAdUnitId,
+                                adValue.valueMicros,
+                                adValue.currencyCode,
+                                adValue.precisionType,
+                                route = null
+                            )
                         }
 
                         // Load the ad

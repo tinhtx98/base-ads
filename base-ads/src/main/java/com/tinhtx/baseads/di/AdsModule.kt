@@ -7,16 +7,10 @@
 
 package com.tinhtx.baseads.di
 
-import com.tinhtx.baseads.core.AdUnitsProvider
-import com.tinhtx.baseads.core.AdsConfig
 import com.tinhtx.baseads.core.AnalyticsLogger
 import com.tinhtx.baseads.core.FirebaseAnalyticsLogger
-import com.tinhtx.baseads.core.TestAdUnitsProvider
-import com.tinhtx.baseads.core.VipGate
-import com.tinhtx.baseads.core.DefaultVipGate
 import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
@@ -28,7 +22,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class AdsModule {
-    
+
     /**
      * Binds the default analytics logger implementation
      */
@@ -37,12 +31,12 @@ abstract class AdsModule {
     abstract fun bindAnalyticsLogger(
         firebaseAnalyticsLogger: FirebaseAnalyticsLogger
     ): AnalyticsLogger
-    
+
     // Note: AdUnitsProvider should be provided by the app module
     // to allow custom ad unit ID configuration. See SampleAppAdsModule for example.
-    
+
     companion object {
-        
+
         // Note: AdsConfig should be provided by the app module
         // to allow custom configuration. See SampleAppAdsModule for example.
     }
