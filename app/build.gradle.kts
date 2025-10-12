@@ -93,7 +93,4 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.play.services.ads.identifier)
-    
-    // ironSource Mediation - Latest version
-    implementation("com.ironsource.sdk:mediationsdk:8.3.0")
 }

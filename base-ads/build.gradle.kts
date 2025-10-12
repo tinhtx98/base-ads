@@ -28,11 +28,15 @@ android {
             buildConfigField("boolean", "DEBUG_LOG_ENABLED", "true")
             buildConfigField("String", "MEDIATION_TYPE", "\"bidding\"")
             buildConfigField("String", "VUNGLE_PARTNER", "\"vungle_liftoff\"")
+            buildConfigField("String", "IRONSOURCE_PARTNER", "\"ironsource\"")
+            buildConfigField("String", "META_PARTNER", "\"meta_audience_network\"")
         }
         release {
             buildConfigField("boolean", "DEBUG_LOG_ENABLED", "false")
             buildConfigField("String", "MEDIATION_TYPE", "\"bidding\"")
             buildConfigField("String", "VUNGLE_PARTNER", "\"vungle_liftoff\"")
+            buildConfigField("String", "IRONSOURCE_PARTNER", "\"ironsource\"")
+            buildConfigField("String", "META_PARTNER", "\"meta_audience_network\"")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -69,6 +73,8 @@ dependencies {
     implementation("com.google.ads.mediation:vungle:7.4.0.0")
     // ironSource Bidding adapter
     implementation(libs.ironsource.mediation.adapter)
+    // Meta Audience Network - Bidding adapter
+    implementation(libs.meta.mediation.adapter)
     
     // Firebase Analytics
     implementation(platform(libs.firebase.bom.v3351))

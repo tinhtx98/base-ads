@@ -56,7 +56,11 @@ object SampleAppAdsModule {
 
             // ironSource bidding
             enableIronSourceBidding = true,
-            enableIronSourceLogging = BuildConfig.DEBUG // Only log in debug builds
+            enableIronSourceLogging = BuildConfig.DEBUG, // Only log in debug builds
+            
+            // Meta Audience Network bidding
+            enableMetaBidding = true,
+            enableMetaLogging = BuildConfig.DEBUG // Only log in debug builds
         )
     }
     

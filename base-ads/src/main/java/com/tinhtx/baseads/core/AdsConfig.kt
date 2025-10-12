@@ -9,7 +9,7 @@ package com.tinhtx.baseads.core
 
 /**
  * Configuration class for controlling ads behavior throughout the app.
- * Pure bidding architecture (AdMob primary) with optional secondary bidders (ironSource, Vungle).
+ * Pure bidding architecture (AdMob primary) with optional secondary bidders (ironSource, Vungle, Meta).
  *
  * @param enableAds Master toggle for all ads functionality
  * @param enableInterstitial Toggle for interstitial ads specifically
@@ -22,6 +22,8 @@ package com.tinhtx.baseads.core
  * @param enableVungleLogging Enable verbose logging for Vungle bidder (analytics side only)
  * @param enableIronSourceBidding Enable ironSource as a bidding partner
  * @param enableIronSourceLogging Enable verbose logging for ironSource bidder (analytics side only)
+ * @param enableMetaBidding Enable Meta Audience Network as a bidding partner
+ * @param enableMetaLogging Enable verbose logging for Meta bidder (analytics side only)
  */
 data class AdsConfig(
     val enableAds: Boolean = true,
@@ -51,6 +53,10 @@ data class AdsConfig(
     // ironSource bidding configuration
     val enableIronSourceBidding: Boolean = true,
     val enableIronSourceLogging: Boolean = true,
+    
+    // Meta Audience Network bidding configuration
+    val enableMetaBidding: Boolean = true,
+    val enableMetaLogging: Boolean = true,
     
     // Banner refresh settings (for tracking AdMob auto-refresh)
     val trackBannerRefresh: Boolean = true,
@@ -114,4 +120,14 @@ data class AdsConfig(
      * Checks if ironSource logging should be enabled
      */
     fun shouldEnableIronSourceLogging(): Boolean = enableIronSourceLogging
+    
+    /**
+     * Checks if Meta Audience Network bidding is enabled
+     */
+    fun isMetaBiddingEnabled(): Boolean = enableMetaBidding
+    
+    /**
+     * Checks if Meta logging should be enabled
+     */
+    fun shouldEnableMetaLogging(): Boolean = enableMetaLogging
 }

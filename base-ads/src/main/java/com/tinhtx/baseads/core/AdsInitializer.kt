@@ -26,7 +26,8 @@ class AdsInitializer @Inject constructor(
     private val analyticsLogger: AnalyticsLogger,
     private val adsConfig: AdsConfig,
     private val vungleBiddingManager: com.tinhtx.baseads.mediation.VungleBiddingManager,
-    private val ironSourceBiddingManager: com.tinhtx.baseads.mediation.IronSourceBiddingManager
+    private val ironSourceBiddingManager: com.tinhtx.baseads.mediation.IronSourceBiddingManager,
+    private val metaBiddingManager: com.tinhtx.baseads.mediation.MetaBiddingManager
 ) {
     
     private var isInitialized = false
@@ -155,6 +156,7 @@ class AdsInitializer @Inject constructor(
             // Initialize bidding partner analytics
             vungleBiddingManager.initialize()
             ironSourceBiddingManager.initialize()
+            metaBiddingManager.initialize()
             
             AdsLogger.i("Initializer", "Bidding partners initialization completed")
             

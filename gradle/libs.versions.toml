@@ -31,13 +31,13 @@ hilt = "2.56.1"
 firebaseBom = "33.13.0"
 googleService = "4.4.2"
 googleCrashlytics = "3.0.3"
-admob = "23.5.0"
 appcompat = "1.7.1"
 material = "1.12.0"
 activity = "1.10.1"
 playServicesAdsIdentifier = "18.0.1"
 ironSourceMediationAdapter = "8.4.0.0"
 ironSourceSdk = "8.4.0"
+metaMediationAdapter = "6.17.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -113,13 +113,13 @@ firebase-crashlytics-ktx = { module = "com.google.firebase:firebase-crashlytics-
 firebase-config = { module = "com.google.firebase:firebase-config" }
 firebase-config-ktx = { module = "com.google.firebase:firebase-config-ktx" }
 google-firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
-google-mobile-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "admob" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 play-services-ads-identifier = { group = "com.google.android.gms", name = "play-services-ads-identifier", version.ref = "playServicesAdsIdentifier" }
 ironsource-mediation-adapter = { group = "com.google.ads.mediation", name = "ironsource", version.ref = "ironSourceMediationAdapter" }
 ironsource-sdk = { group = "com.ironsrc.mediationsdk", name = "mediationsdk", version.ref = "ironSourceSdk" }
+meta-mediation-adapter = { group = "com.google.ads.mediation", name = "facebook", version.ref = "metaMediationAdapter" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
