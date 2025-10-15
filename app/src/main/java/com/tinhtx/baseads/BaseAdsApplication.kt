@@ -35,11 +35,23 @@ class BaseAdsApplication : Application() {
         // Increment app launch count for analytics
         adsPrefs.incrementAppLaunchCount()
         
-        // Initialize ads with test device IDs for development
-        adsInitializer.initializeWithTestDevices(
-            context = this,
-            includeCommonTestDevices = true
-        )
+        // Initialize ads based on build type
+        if (BuildConfig.DEBUG) {
+            // DEBUG BUILD: Use test mode for safe extensive testing
+            // ⚠️ Note: Bidding networks (ironSource, Vungle, Meta) may not return bids in test mode
+            adsInitializer.initializeWithTestDevices(
+                context = this,
+                includeCommonTestDevices = true
+            )
+        } else {
+            // RELEASE BUILD: Use production mode for real bidding
+            // ✅ All networks will participate in bidding and return real eCPMs
+            adsInitializer.initializeProductionMode(context = this)
+        }
+        
+        // MANUAL OVERRIDE for testing real bidding in debug:
+        // Uncomment below to test production bidding behavior:
+        // adsInitializer.initializeProductionMode(context = this)
         
         // Initialize force update with remote config
         forceUpdateRepository.init()

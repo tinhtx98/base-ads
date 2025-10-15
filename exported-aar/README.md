@@ -2,9 +2,9 @@
 
 **Version:** 1.0.0  
 **Version Code:**   
-**Built:** Fri Oct  3 19:38:36 +07 2025  
-**File:** base-ads-v1.0.0-20251003_193831.aar  
-**Size:** 164K
+**Built:** Wed Oct 15 22:29:26 +07 2025  
+**File:** base-ads-v1.0.0-20251015_222918.aar  
+**Size:** 172K
 
 ## 📦 What's Included
 
@@ -25,7 +25,7 @@
 YourProject/
 ├── app/
 │   ├── libs/
-│   │   └── base-ads-v1.0.0-20251003_193831.aar
+│   │   └── base-ads-v1.0.0-20251015_222918.aar
 │   └── build.gradle.kts
 ```
 
@@ -33,7 +33,7 @@ YourProject/
 ```kotlin
 dependencies {
     // BaseAds Library
-    implementation(files("libs/base-ads-v1.0.0-20251003_193831.aar"))
+    implementation(files("libs/base-ads-v1.0.0-20251015_222918.aar"))
     
     // Required dependencies
     implementation("com.google.android.gms:play-services-ads:22.5.0")
@@ -238,5 +238,5 @@ For issues and questions:
 - Test with provided test ad unit IDs first
 
 ---
-**Generated:** Fri Oct  3 19:38:36 +07 2025  
+**Generated:** Wed Oct 15 22:29:26 +07 2025  
 **BaseAds Library v1.0.0**

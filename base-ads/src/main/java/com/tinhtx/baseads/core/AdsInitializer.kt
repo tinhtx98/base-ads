@@ -86,19 +86,58 @@ class AdsInitializer @Inject constructor(
                     val statusMap = initializationStatus.adapterStatusMap
                     
                     AdsLogger.i("Initializer", "MobileAds initialization completed")
+                    AdsLogger.i("Initializer", "═══════════════════════════════════════")
+                    AdsLogger.i("Initializer", "📊 ADAPTER STATUS REPORT")
+                    AdsLogger.i("Initializer", "═══════════════════════════════════════")
                     
-                    // Log adapter statuses
+                    var readyCount = 0
+                    var notReadyCount = 0
+                    
+                    // Log adapter statuses with detailed info
                     statusMap.forEach { (adapterName, status) ->
-                        AdsLogger.d(
-                            "Initializer", 
-                            "Adapter: $adapterName, Status: ${status.initializationState}, " +
-                            "Description: ${status.description}"
-                        )
+                        val state = status.initializationState.name
+                        val description = status.description
+                        val latency = status.latency
+                        
+                        when (status.initializationState.name) {
+                            "READY" -> {
+                                readyCount++
+                                AdsLogger.i(
+                                    "Initializer",
+                                    "✅ $adapterName: READY (${latency}ms)"
+                                )
+                            }
+                            "NOT_READY" -> {
+                                notReadyCount++
+                                AdsLogger.e(
+                                    "Initializer",
+                                    "❌ $adapterName: NOT_READY - $description"
+                                )
+                                // Log to analytics for monitoring
+                                analyticsLogger.logEvent("adapter_not_ready", mapOf(
+                                    "adapter" to adapterName,
+                                    "reason" to description,
+                                    "latency" to latency
+                                ))
+                            }
+                            else -> {
+                                AdsLogger.w(
+                                    "Initializer",
+                                    "⚠️ $adapterName: $state - $description"
+                                )
+                            }
+                        }
                     }
+                    
+                    AdsLogger.i("Initializer", "═══════════════════════════════════════")
+                    AdsLogger.i("Initializer", "Summary: $readyCount ready, $notReadyCount not ready")
+                    AdsLogger.i("Initializer", "═══════════════════════════════════════")
                     
                     // Log analytics event
                     analyticsLogger.logEvent("ads_init", mapOf(
                         "adapters_count" to statusMap.size,
+                        "adapters_ready" to readyCount,
+                        "adapters_not_ready" to notReadyCount,
                         "initialization_status" to "completed"
                     ))
                     
@@ -143,7 +182,21 @@ class AdsInitializer @Inject constructor(
             emptyList()
         }
         
+        AdsLogger.w("Initializer", "🧪 TEST MODE: Using test device IDs - bidding networks may not return bids")
         initialize(context, testDevices)
+    }
+    
+    /**
+     * Initialize in production mode (no test devices)
+     * Use this to test real bidding behavior from all networks.
+     * 
+     * ⚠️ WARNING: This will serve real ads. Use sparingly during testing.
+     * Excessive clicking on your own ads violates AdMob policies.
+     */
+    fun initializeProductionMode(context: Context) {
+        AdsLogger.w("Initializer", "🚀 PRODUCTION MODE: Real ads will be served from all networks!")
+        AdsLogger.w("Initializer", "⚠️ Bidding networks (ironSource, Vungle, Meta) will return real bids")
+        initialize(context, testDeviceIds = emptyList())
     }
     
     /**

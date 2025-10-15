@@ -8,7 +8,7 @@
 - [ ] Firebase project created
 
 ## ✅ File Setup
-- [ ] Copy `base-ads-v1.0.0-20251003_193831.aar` to `app/libs/`
+- [ ] Copy `base-ads-v1.0.0-20251015_222918.aar` to `app/libs/`
 - [ ] Add dependencies to `build.gradle.kts`
 - [ ] Copy `proguard-rules.pro` content to your ProGuard config
 - [ ] Add `google-services.json` to `app/`
@@ -43,4 +43,4 @@
 - **ironSource issues:** Check app key and adapter configuration
 
 ---
-Last updated: Fri Oct  3 19:38:36 +07 2025
+Last updated: Wed Oct 15 22:29:26 +07 2025
