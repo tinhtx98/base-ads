@@ -174,7 +174,10 @@ class AdsInitializer @Inject constructor(
         includeCommonTestDevices: Boolean = true
     ) {
         val testDevices = if (includeCommonTestDevices) {
-            emptyList()
+            listOf(
+                AdRequest.DEVICE_ID_EMULATOR, // Use AdMob's emulator constant
+                "33BE2250B43518CCDA7DE426D04EE231" // Common test device (replace with your device ID)
+            )
         } else {
             emptyList()
         }
