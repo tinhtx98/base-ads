@@ -20,6 +20,7 @@ hiltNavigationCompose = "1.2.0"
 playServicesAds = "24.6.0"
 roomVersion = "2.6.1"
 coroutinesVersion = "1.9.0"
+vungle = "7.4.0.0"
 workRuntimeKtx = "2.10.0"
 accompanistPermissions = "0.32.0"
 coil = "2.7.0"
@@ -120,6 +121,7 @@ play-services-ads-identifier = { group = "com.google.android.gms", name = "play-
 ironsource-mediation-adapter = { group = "com.google.ads.mediation", name = "ironsource", version.ref = "ironSourceMediationAdapter" }
 ironsource-sdk = { group = "com.ironsrc.mediationsdk", name = "mediationsdk", version.ref = "ironSourceSdk" }
 meta-mediation-adapter = { group = "com.google.ads.mediation", name = "facebook", version.ref = "metaMediationAdapter" }
+vungle = { module = "com.google.ads.mediation:vungle", version.ref = "vungle" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

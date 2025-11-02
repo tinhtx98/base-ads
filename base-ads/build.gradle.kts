@@ -66,15 +66,19 @@ android {
 
 dependencies {
     // Google Mobile Ads SDK (with bidding mediation support)
-    implementation(libs.play.services.ads.v2460)
+    // Use 'api' to expose to consuming apps when built as AAR
+    api(libs.play.services.ads.v2460)
     
     // Bidding mediation partners (for real-time bidding)
+    // CRITICAL: Must use 'api' instead of 'implementation' for AAR library
+    // This ensures mediation adapters are available at runtime in consuming apps
+    
     // Vungle Liftoff Monetize - Bidding adapter
-    implementation("com.google.ads.mediation:vungle:7.4.0.0")
+    api(libs.vungle)
     // ironSource Bidding adapter
-    implementation(libs.ironsource.mediation.adapter)
+    api(libs.ironsource.mediation.adapter)
     // Meta Audience Network - Bidding adapter
-    implementation(libs.meta.mediation.adapter)
+    api(libs.meta.mediation.adapter)
     
     // Firebase Analytics
     implementation(platform(libs.firebase.bom.v3351))
