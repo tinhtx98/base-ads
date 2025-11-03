@@ -4,6 +4,13 @@
 -keep class com.ironsource.** { *; }
 -dontwarn com.ironsource.**
 
+# Keep Meta Audience Network (Facebook) classes
+-keep class com.facebook.ads.** { *; }
+-keepclassmembers class com.facebook.ads.** { *; }
+-dontwarn com.facebook.ads.**
+-dontwarn com.facebook.infer.annotation.**
+-keep class com.facebook.infer.annotation.** { *; }
+
 # Keep Firebase Analytics
 -keep class com.google.firebase.analytics.** { *; }
 
