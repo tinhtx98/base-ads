@@ -1,242 +1,296 @@
-# BaseAds Library
+# BaseAds AAR Integration Guide
 
-**Version:** 1.0.0  
-**Version Code:**   
-**Built:** Wed Oct 15 22:29:26 +07 2025  
-**File:** base-ads-v1.0.0-20251015_222918.aar  
-**Size:** 172K
+## 📦 Latest Version: v1.0.0-20251103_141146
 
-## 📦 What's Included
+✅ **New**: Fixed ProGuard issues with Meta Audience Network SDK
 
-- ✅ Google Mobile Ads SDK integration
-- ✅ ironSource mediation support
+### What's Included
+- ✅ Google AdMob mediation support
+- ✅ ironSource bidding adapter
+- ✅ Meta Audience Network (Facebook) adapter
+- ✅ Vungle adapter
+- ✅ Complete ProGuard/R8 rules
 - ✅ Firebase Analytics integration
-- ✅ Adaptive banner ads with preloading
-- ✅ Interstitial ads with smart timing
-- ✅ VIP user management
-- ✅ Force update functionality
-- ✅ Jetpack Compose UI components
-- ✅ Hilt dependency injection ready
 
-## 🚀 Integration Guide
+---
 
-### 1. Copy AAR to your project
+## 🚀 Quick Integration
+
+### Step 1: Copy Files
 ```
-YourProject/
-├── app/
-│   ├── libs/
-│   │   └── base-ads-v1.0.0-20251015_222918.aar
-│   └── build.gradle.kts
+your-project/
+└── app/
+    └── libs/
+        ├── base-ads-v1.0.0-20251103_141146.aar
+        └── base-ads-proguard-rules.pro  (optional but recommended)
 ```
 
-### 2. Add dependencies to app/build.gradle.kts
-```kotlin
-dependencies {
-    // BaseAds Library
-    implementation(files("libs/base-ads-v1.0.0-20251015_222918.aar"))
-    
-    // Required dependencies
-    implementation("com.google.android.gms:play-services-ads:22.5.0")
-    implementation("com.google.firebase:firebase-analytics:21.5.0")
-    implementation("com.google.firebase:firebase-config:21.4.1")
-    implementation("com.ironsource.sdk:mediationsdk:7.5.1")
-    
-    // Jetpack Compose
-    implementation("androidx.compose.ui:ui:1.5.4")
-    implementation("androidx.compose.ui:ui-tooling-preview:1.5.4")
-    implementation("androidx.compose.material3:material3:1.1.2")
-    implementation("androidx.activity:activity-compose:1.8.0")
-    implementation("androidx.navigation:navigation-compose:2.7.4")
-    
-    // Hilt
-    implementation("com.google.dagger:hilt-android:2.48")
-    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
-    kapt("com.google.dagger:hilt-compiler:2.48")
-    
-    // Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-}
-```
+### Step 2: Update build.gradle
 
-### 3. Enable Jetpack Compose in android block
+**app/build.gradle.kts:**
 ```kotlin
 android {
-    compileSdk 34
-    
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+                "base-ads-proguard-rules.pro"  // Optional: for explicit ProGuard rules
+            )
+        }
     }
+}
+
+dependencies {
+    // BaseAds Library
+    implementation(files("libs/base-ads-v1.0.0-20251103_141146.aar"))
     
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
+    // REQUIRED: Mediation SDK Dependencies
+    implementation("com.google.android.gms:play-services-ads:23.4.0")
+    implementation("com.ironsource.sdk:mediationsdk:8.3.0")
+    implementation("com.facebook.android:audience-network-sdk:6.17.0")
+    implementation("com.vungle:vungle-ads:7.4.0")
     
-    buildFeatures {
-        compose = true
-    }
+    // REQUIRED: Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
+    implementation("com.google.firebase:firebase-analytics-ktx")
     
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.4"
-    }
+    // Optional: Hilt (if using dependency injection)
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    kapt("com.google.dagger:hilt-compiler:2.51.1")
 }
 ```
 
-### 4. Setup Application class
-```kotlin
-import com.tinhtx.baseads.core.AdsInitializer
-import com.tinhtx.baseads.data.AdsPrefs
-import dagger.hilt.android.HiltAndroidApp
-import javax.inject.Inject
+### Step 3: Add google-services.json
+Place your Firebase configuration file in `app/google-services.json`
 
-@HiltAndroidApp
+### Step 4: Initialize in Application class
+```kotlin
+import com.tinhtx.baseads.BaseAdsSDK
+import com.google.android.gms.ads.MobileAds
+
 class MyApplication : Application() {
-    
-    @Inject
-    lateinit var adsInitializer: AdsInitializer
-    
-    @Inject 
-    lateinit var adsPrefs: AdsPrefs
-    
     override fun onCreate() {
         super.onCreate()
         
-        // Initialize ads
-        adsPrefs.incrementAppLaunchCount()
-        adsInitializer.initializeWithTestDevices(
-            context = this,
-            includeCommonTestDevices = true
-        )
-    }
-}
-```
-
-### 5. Add to AndroidManifest.xml
-```xml
-<application
-    android:name=".MyApplication"
-    android:allowBackup="true"
-    android:icon="@mipmap/ic_launcher"
-    android:label="@string/app_name"
-    android:theme="@style/Theme.YourApp">
-    
-    <!-- Google AdMob App ID -->
-    <meta-data
-        android:name="com.google.android.gms.ads.APPLICATION_ID"
-        android:value="ca-app-pub-3940256099942544~3347511713" />
-    
-    <!-- Your activities here -->
-    
-</application>
-```
-
-### 6. Configure ads (Create AdsModule.kt)
-```kotlin
-import com.tinhtx.baseads.core.AdsConfig
-import com.tinhtx.baseads.core.AdUnitsProvider
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
-
-@Module
-@InstallIn(SingletonComponent::class)
-object MyAppAdsModule {
-    
-    @Provides
-    @Singleton
-    fun provideAdsConfig(): AdsConfig = AdsConfig(
-        enableAds = true,
-        enableInterstitial = true,
-        enableBanner = true,
-        ironSourceAppKey = "YOUR_IRONSOURCE_APP_KEY", // Replace with your key
-        enableIronSourceLogging = BuildConfig.DEBUG
-    )
-    
-    @Provides
-    @Singleton 
-    fun provideAdUnitsProvider(): AdUnitsProvider = object : AdUnitsProvider {
-        override val bannerAdUnitId: String = "ca-app-pub-3940256099942544/6300978111" // Test ID
-        override val interstitialAdUnitId: String = "ca-app-pub-3940256099942544/1033173712" // Test ID
-        override val rewardedAdUnitId: String = "ca-app-pub-3940256099942544/5224354917" // Test ID
-    }
-}
-```
-
-### 7. Use banner ads in Compose
-```kotlin
-import com.tinhtx.baseads.banner.AdaptiveBanner
-import com.tinhtx.baseads.core.*
-import androidx.hilt.navigation.compose.hiltViewModel
-
-@Composable
-fun MainScreen() {
-    val adUnitsProvider: AdUnitsProvider = hiltViewModel()
-    val adsConfig: AdsConfig = hiltViewModel()
-    val vipGate: VipGate = hiltViewModel()
-    val analyticsLogger: AnalyticsLogger = hiltViewModel()
-    
-    Scaffold(
-        bottomBar = {
-            AdaptiveBanner(
-                adUnitsProvider = adUnitsProvider,
-                adsConfig = adsConfig,
-                vipGate = vipGate,
-                analyticsLogger = analyticsLogger
-            )
+        // Initialize Mobile Ads SDK
+        MobileAds.initialize(this) { status ->
+            Log.d("BaseAds", "AdMob initialized: $status")
         }
-    ) { paddingValues ->
-        // Your content here
+        
+        // Initialize BaseAds (if using)
+        BaseAdsSDK.initialize(this)
     }
 }
 ```
-
-## 🔧 Configuration
-
-### Ad Unit IDs
-Replace test ad unit IDs with your production IDs:
-- Banner: `ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX`
-- Interstitial: `ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX`
-
-### ironSource Integration
-1. Get your app key from ironSource dashboard
-2. Replace `YOUR_IRONSOURCE_APP_KEY` in AdsModule
-3. Add ironSource adapters as needed
-
-### Firebase Setup
-1. Add `google-services.json` to app folder
-2. Add Firebase plugin to app/build.gradle.kts:
-   ```kotlin
-   plugins {
-       id("com.google.gms.google-services")
-   }
-   ```
-
-## 📚 API Reference
-
-### Key Classes
-- `AdsInitializer` - Initialize ads SDK
-- `AdaptiveBanner` - Compose banner component  
-- `InterstitialAdManager` - Manage interstitial ads
-- `VipGate` - VIP user management
-- `ForceUpdateDialog` - App update enforcement
-
-### Features
-- ✅ Adaptive banners with preloading
-- ✅ Smart interstitial timing
-- ✅ VIP user ad-free experience
-- ✅ Force update with Firebase Remote Config
-- ✅ Analytics integration
-- ✅ ironSource mediation support
-
-## 🆘 Support
-
-For issues and questions:
-- Check logs with tag: `BaseAds-*`
-- Enable debug logging in AdsConfig
-- Test with provided test ad unit IDs first
 
 ---
-**Generated:** Wed Oct 15 22:29:26 +07 2025  
-**BaseAds Library v1.0.0**
+
+## 🔧 ProGuard Configuration
+
+### Option 1: Automatic (Recommended)
+The AAR includes `consumer-rules.pro` which will be automatically applied when you import the AAR. **No additional configuration needed for most cases.**
+
+### Option 2: Manual Rules
+If you encounter ProGuard issues, copy `proguard-rules.pro` to your app folder and reference it:
+
+```kotlin
+android {
+    buildTypes {
+        release {
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+                "base-ads-proguard-rules.pro"
+            )
+        }
+    }
+}
+```
+
+### Important ProGuard Rules (Already Included)
+```proguard
+# Meta Audience Network - CRITICAL for production builds
+-keep class com.facebook.ads.** { *; }
+-dontwarn com.facebook.infer.annotation.**
+-keep class com.facebook.infer.annotation.** { *; }
+
+# AdMob
+-keep class com.google.android.gms.ads.** { *; }
+
+# ironSource
+-keep class com.ironsource.** { *; }
+
+# Vungle
+-keep class com.vungle.** { *; }
+```
+
+---
+
+## 📱 Usage Examples
+
+### Banner Ad
+```kotlin
+import com.tinhtx.baseads.banner.BannerAdView
+
+// In your layout XML
+<com.tinhtx.baseads.banner.BannerAdView
+    android:id="@+id/bannerAd"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:adUnitId="ca-app-pub-xxxxx/xxxxx" />
+
+// In your Activity/Fragment
+val bannerAd = findViewById<BannerAdView>(R.id.bannerAd)
+bannerAd.loadAd()
+```
+
+### Interstitial Ad
+```kotlin
+import com.tinhtx.baseads.interstitial.InterstitialAdManager
+
+class MainActivity : AppCompatActivity() {
+    private lateinit var interstitialManager: InterstitialAdManager
+    
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        
+        interstitialManager = InterstitialAdManager(
+            context = this,
+            adUnitId = "ca-app-pub-xxxxx/xxxxx"
+        )
+        
+        // Load ad
+        interstitialManager.loadAd()
+    }
+    
+    private fun showInterstitial() {
+        interstitialManager.showAd { success ->
+            if (success) {
+                Log.d("Ads", "Interstitial shown")
+            } else {
+                Log.d("Ads", "Interstitial not ready")
+            }
+        }
+    }
+}
+```
+
+### Rewarded Ad
+```kotlin
+import com.tinhtx.baseads.rewarded.RewardedAdManager
+
+class GameActivity : AppCompatActivity() {
+    private lateinit var rewardedManager: RewardedAdManager
+    
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        
+        rewardedManager = RewardedAdManager(
+            context = this,
+            adUnitId = "ca-app-pub-xxxxx/xxxxx"
+        )
+        
+        rewardedManager.loadAd()
+    }
+    
+    private fun showRewardedAd() {
+        rewardedManager.showAd { reward ->
+            if (reward != null) {
+                // User earned reward
+                val amount = reward.amount
+                val type = reward.type
+                Log.d("Ads", "Earned $amount $type")
+            }
+        }
+    }
+}
+```
+
+---
+
+## ✅ Testing Checklist
+
+### Development Testing
+- [ ] Add test device IDs in AdMob dashboard
+- [ ] Test banner ads load and display
+- [ ] Test interstitial ads load and show
+- [ ] Test rewarded ads and reward callback
+- [ ] Check logs for mediation waterfall
+- [ ] Verify Meta adapter loads
+
+### Production Build Testing
+- [ ] Build release APK with `minifyEnabled = true`
+- [ ] Verify no ProGuard warnings about Meta SDK
+- [ ] Install on real device (not emulator)
+- [ ] Test all ad formats in release build
+- [ ] Check Firebase Analytics events
+- [ ] Verify ILRD (impression-level revenue data)
+
+---
+
+## 🐛 Troubleshooting
+
+### ProGuard Errors (Meta SDK)
+**Error:** `Missing class com.facebook.infer.annotation.Nullsafe`
+
+**Solution:** Rules are already included in `consumer-rules.pro`. If still getting errors:
+1. Copy `proguard-rules.pro` to your app folder
+2. Reference it in `build.gradle` (see ProGuard Configuration above)
+3. Clean and rebuild: `./gradlew clean assembleRelease`
+
+### Ads Not Showing
+1. **Check Ad Unit IDs** - Ensure using correct production IDs
+2. **Test Device** - Add test device ID during development
+3. **Internet Permission** - Check `AndroidManifest.xml` has internet permission
+4. **Firebase Config** - Verify `google-services.json` is correct
+5. **Mediation Setup** - Check AdMob dashboard for adapter status
+
+### Build Errors
+1. **Missing Dependencies** - Ensure all mediation SDKs are added
+2. **Version Conflicts** - Use BOM for Firebase dependencies
+3. **MultiDex** - Enable if hitting 64K method limit
+
+---
+
+## 📚 Additional Documentation
+
+- `CHANGELOG.md` - Version history and changes
+- `PROGUARD_META_FIX.md` - Detailed ProGuard troubleshooting guide
+- `proguard-rules.pro` - Complete ProGuard rules reference
+- `consumer-rules.pro` - Auto-applied consumer ProGuard rules
+
+---
+
+## 🔗 Required Ad Unit IDs
+
+Before going to production, replace test IDs with your own:
+
+### AdMob Dashboard
+1. Create ad units for each format:
+   - Banner: `ca-app-pub-xxxxx/xxxxx`
+   - Interstitial: `ca-app-pub-xxxxx/xxxxx`
+   - Rewarded: `ca-app-pub-xxxxx/xxxxx`
+
+2. Set up mediation groups with:
+   - ironSource adapter
+   - Meta Audience Network adapter
+   - Vungle adapter
+
+3. Enable bidding for optimal eCPM
+
+---
+
+## 📞 Support
+
+For issues or questions:
+1. Check `PROGUARD_META_FIX.md` for ProGuard issues
+2. Review `CHANGELOG.md` for recent changes
+3. Verify all dependencies are up to date
+
+---
+
+## 📄 License
+
+Copyright © 2025. All rights reserved.
