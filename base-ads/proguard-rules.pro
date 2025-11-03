@@ -18,6 +18,13 @@
 -dontwarn com.ironsource.**
 -dontwarn com.unity3d.**
 
+# Keep Meta Audience Network (Facebook) SDK classes
+-keep class com.facebook.ads.** { *; }
+-keepclassmembers class com.facebook.ads.** { *; }
+-dontwarn com.facebook.ads.**
+-dontwarn com.facebook.infer.annotation.**
+-keep class com.facebook.infer.annotation.** { *; }
+
 # Keep Firebase Analytics
 -keep class com.google.firebase.analytics.** { *; }
 -keep class com.google.firebase.ktx.** { *; }
