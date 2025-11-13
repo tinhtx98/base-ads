@@ -30,6 +30,7 @@ android {
             buildConfigField("String", "VUNGLE_PARTNER", "\"vungle_liftoff\"")
             buildConfigField("String", "IRONSOURCE_PARTNER", "\"ironsource\"")
             buildConfigField("String", "META_PARTNER", "\"meta_audience_network\"")
+            buildConfigField("String", "INMOBI_PARTNER", "\"inmobi\"")
         }
         release {
             buildConfigField("boolean", "DEBUG_LOG_ENABLED", "false")
@@ -37,6 +38,7 @@ android {
             buildConfigField("String", "VUNGLE_PARTNER", "\"vungle_liftoff\"")
             buildConfigField("String", "IRONSOURCE_PARTNER", "\"ironsource\"")
             buildConfigField("String", "META_PARTNER", "\"meta_audience_network\"")
+            buildConfigField("String", "INMOBI_PARTNER", "\"inmobi\"")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -79,6 +81,7 @@ dependencies {
     api(libs.ironsource.mediation.adapter)
     // Meta Audience Network - Bidding adapter
     api(libs.meta.mediation.adapter)
+    // InMobi - Bidding adapter
     api(libs.inmobi.mediation.adapter)
     
     // Firebase Analytics
