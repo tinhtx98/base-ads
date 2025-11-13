@@ -35,7 +35,7 @@ echo -e "${PURPLE}🐛 DEBUG MODE: Building with full logging enabled${NC}"
 echo -e "${BLUE}🧹 Cleaning previous builds...${NC}"
 ./gradlew :base-ads:clean
 
-echo -e "${BLUE}🔨 Building DEBUG AAR...${NC}"
+echo -e "${BLUE}🔨 Building DEBUG AAR with sources...${NC}"
 ./gradlew :base-ads:assembleDebug
 
 # Check if build was successful
@@ -50,13 +50,27 @@ mkdir -p exported-aar-debug
 echo -e "${BLUE}📁 Copying DEBUG AAR file...${NC}"
 cp base-ads/build/outputs/aar/base-ads-debug.aar "exported-aar-debug/${AAR_NAME}"
 
+# Copy sources JAR if exists
+SOURCES_JAR="base-ads/build/libs/base-ads-sources.jar"
+if [ -f "$SOURCES_JAR" ]; then
+    SOURCES_JAR_NAME="base-ads-debug-v${VERSION}-${TIMESTAMP}-sources.jar"
+    echo -e "${BLUE}📁 Copying sources JAR for debugging...${NC}"
+    cp "$SOURCES_JAR" "exported-aar-debug/${SOURCES_JAR_NAME}"
+    SOURCES_SIZE=$(du -h "exported-aar-debug/${SOURCES_JAR_NAME}" | cut -f1)
+    echo -e "${GREEN}✅ Sources JAR: ${SOURCES_JAR_NAME} (${SOURCES_SIZE})${NC}"
+fi
+
 # Get file size
 FILE_SIZE=$(du -h "exported-aar-debug/${AAR_NAME}" | cut -f1)
 
 echo -e "${GREEN}✅ DEBUG AAR exported successfully!${NC}"
 echo "================================================"
-echo -e "${GREEN}📦 File: exported-aar-debug/${AAR_NAME}${NC}"
-echo -e "${GREEN}📏 Size: ${FILE_SIZE}${NC}"
+echo -e "${GREEN}📦 AAR File: exported-aar-debug/${AAR_NAME}${NC}"
+echo -e "${GREEN}📏 AAR Size: ${FILE_SIZE}${NC}"
+if [ -f "exported-aar-debug/${SOURCES_JAR_NAME}" ]; then
+    echo -e "${GREEN}📦 Sources: exported-aar-debug/${SOURCES_JAR_NAME}${NC}"
+    echo -e "${GREEN}📏 Sources Size: ${SOURCES_SIZE}${NC}"
+fi
 echo -e "${GREEN}🕒 Built: $(date)${NC}"
 echo -e "${PURPLE}🐛 DEBUG: Full logging enabled${NC}"
 
@@ -97,12 +111,13 @@ cat > exported-aar-debug/DEBUG-README.md << EOF
 
 ## 🚀 Integration Guide
 
-### 1. Copy DEBUG AAR to your project
-\`\`\`
+### 1. Copy files to your project
+\`\`\`bash
 YourProject/
 ├── app/
 │   ├── libs/
-│   │   └── ${AAR_NAME}
+│   │   ├── ${AAR_NAME}                    # Main library
+│   │   └── ${AAR_NAME%-*.aar}-sources.jar # Sources for debugging
 │   └── build.gradle.kts
 \`\`\`
 
@@ -112,26 +127,49 @@ dependencies {
     // BaseAds DEBUG Library
     implementation(files("libs/${AAR_NAME}"))
     
-    // Required dependencies
-    implementation("com.google.android.gms:play-services-ads:22.5.0")
-    implementation("com.ironsource.sdk:mediationsdk:7.5.2")
-    implementation("com.google.firebase:firebase-analytics-ktx:21.5.0")
-    implementation("com.google.firebase:firebase-config-ktx:21.6.0")
-    implementation("com.google.firebase:firebase-messaging-ktx:23.4.0")
+    // REQUIRED: Add mediation adapters manually (files() doesn't resolve transitive deps)
+    implementation("com.google.android.gms:play-services-ads:24.6.0")
+    implementation("com.google.ads.mediation:vungle:7.4.0.0")           // LiftOff
+    implementation("com.google.ads.mediation:ironsource:8.4.0.0")       // IronSource  
+    implementation("com.google.ads.mediation:facebook:6.17.0.0")        // Meta
+    
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
+    implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.firebase:firebase-config-ktx")
     
     // Compose BOM
-    implementation(platform("androidx.compose:compose-bom:2023.10.01"))
+    implementation(platform("androidx.compose:compose-bom:2024.02.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     
     // Hilt
     implementation("com.google.dagger:hilt-android:2.48")
-    kapt("com.google.dagger:hilt-android-compiler:2.48")
+    ksp("com.google.dagger:hilt-compiler:2.48")
 }
 \`\`\`
 
-### 3. Enable logging in your app
+### 3. Attach sources for debugging (Android Studio)
+
+**Option A: Automatic (Recommended)**
+1. Open project in Android Studio
+2. Sync Gradle
+3. Sources JAR will be auto-detected in \`libs/\` folder
+
+**Option B: Manual attach**
+1. Navigate to **External Libraries** → Find \`base-ads-debug\`
+2. Right-click → **Library Properties**
+3. Click **+** → Select \`base-ads-debug-*-sources.jar\`
+4. Click **OK**
+
+Now you can:
+- ✅ **Ctrl+Click** to jump into BaseAds source code
+- ✅ Set **breakpoints** inside library code
+- ✅ See **variable names** (not obfuscated)
+- ✅ Full **stack traces** with line numbers
+
+### 4. Enable logging in your app
 \`\`\`kotlin
 // In your Application class
 class YourApplication : Application() {

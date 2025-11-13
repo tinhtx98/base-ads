@@ -27,7 +27,7 @@ else
 fi
 
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-AAR_NAME="base-ads-v${VERSION}-${TIMESTAMP}.aar"
+AAR_NAME="base-ads.aar"
 
 echo -e "${BLUE}🧹 Cleaning previous builds...${NC}"
 ./gradlew :base-ads:clean
@@ -316,6 +316,18 @@ cat > exported-aar/proguard-rules.pro << 'EOF'
 -keepclassmembers class com.ironsource.** { public *; }
 -keep class com.ironsource.** { *; }
 -dontwarn com.ironsource.**
+
+# Meta Audience Network
+-keep class com.facebook.ads.** { *; }
+-keepclassmembers class com.facebook.ads.** { *; }
+-dontwarn com.facebook.ads.**
+-dontwarn com.facebook.infer.annotation.**
+-keep class com.facebook.infer.annotation.** { *; }
+
+# InMobi
+-keep class com.inmobi.** { *; }
+-dontwarn com.inmobi.**
+-keep class com.inmobi.ads.** { *; }
 
 # Firebase
 -keep class com.google.firebase.** { *; }

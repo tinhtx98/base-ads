@@ -79,6 +79,7 @@ dependencies {
     api(libs.ironsource.mediation.adapter)
     // Meta Audience Network - Bidding adapter
     api(libs.meta.mediation.adapter)
+    api(libs.inmobi.mediation.adapter)
     
     // Firebase Analytics
     implementation(platform(libs.firebase.bom.v3351))
@@ -116,4 +117,21 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+// Generate sources JAR for debugging
+afterEvaluate {
+    val sourcesJar by tasks.registering(Jar::class) {
+        archiveClassifier.set("sources")
+        from(android.sourceSets.getByName("main").java.srcDirs)
+    }
+
+    // Attach sources JAR to both debug and release builds
+    tasks.named("assembleDebug") {
+        finalizedBy(sourcesJar)
+    }
+
+    tasks.named("assembleRelease") {
+        finalizedBy(sourcesJar)
+    }
 }

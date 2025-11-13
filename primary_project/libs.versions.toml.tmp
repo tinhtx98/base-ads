@@ -3,9 +3,9 @@ agp = "8.7.2"
 coilVideo = "2.6.0"
 billingKtx = "7.0.0"
 coreSplashscreen = "1.0.1"
-firebaseBomVersion = "33.5.1"
+facebook = "6.20.0.2"
+inmobi = "10.8.7.0"
 kotlin = "2.1.20"
-kotlinxCoroutinesAndroid = "1.7.3"
 ksp = "2.1.20-1.0.31"
 coreKtx = "1.15.0"
 junit = "4.13.2"
@@ -14,8 +14,8 @@ espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.9.3"
 composeBom = "2024.12.01"
+ironSourceAdapter = "9.0.0.1"
 navigationCompose = "2.8.4"
-hiltAndroid = "2.52"
 hiltNavigationCompose = "1.2.0"
 playServicesAds = "24.7.0"
 roomVersion = "2.6.1"
@@ -36,18 +36,13 @@ appcompat = "1.7.1"
 material = "1.12.0"
 activity = "1.10.1"
 playServicesAdsIdentifier = "18.0.1"
-ironSourceMediationAdapter = "9.0.0.1"
-ironSourceSdk = "8.4.0"
-metaMediationAdapter = "6.20.0.2"
-inMobiMediationAdapter = "10.8.7.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 billing-ktx = { module = "com.android.billingclient:billing-ktx", version.ref = "billingKtx" }
 coil-video = { module = "io.coil-kt:coil-video", version.ref = "coilVideo" }
-firebase-bom-v3351 = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBomVersion" }
-google-firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx" }
+facebook = { module = "com.google.ads.mediation:facebook", version.ref = "facebook" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -68,7 +63,6 @@ androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navig
 # Hilt
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
-hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hilt" }
 
 # Room
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "roomVersion" }
@@ -92,8 +86,9 @@ coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coi
 androidx-documentfile = { group = "androidx.documentfile", name = "documentfile", version.ref = "documentfile" }
 
 # Charts
-kotlinx-coroutines-android-v173 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
-play-services-ads-v2460 = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
+ironsource-adapter = { module = "com.google.ads.mediation:ironsource", version.ref = "ironSourceAdapter" }
+inmobi-adapter = { module = "com.google.ads.mediation:inmobi", version.ref = "inmobi" }
+play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
 vico-compose = { group = "com.patrykandpatrick.vico", name = "compose", version.ref = "vico" }
 vico-compose-m3 = { group = "com.patrykandpatrick.vico", name = "compose-m3", version.ref = "vico" }
 vico-core = { group = "com.patrykandpatrick.vico", name = "core", version.ref = "vico" }
@@ -112,22 +107,16 @@ firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "fir
 firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-crashlytics-ktx = { module = "com.google.firebase:firebase-crashlytics-ktx" }
-firebase-config = { module = "com.google.firebase:firebase-config" }
-firebase-config-ktx = { module = "com.google.firebase:firebase-config-ktx" }
 google-firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 play-services-ads-identifier = { group = "com.google.android.gms", name = "play-services-ads-identifier", version.ref = "playServicesAdsIdentifier" }
-ironsource-mediation-adapter = { group = "com.google.ads.mediation", name = "ironsource", version.ref = "ironSourceMediationAdapter" }
-ironsource-sdk = { group = "com.ironsrc.mediationsdk", name = "mediationsdk", version.ref = "ironSourceSdk" }
-meta-mediation-adapter = { group = "com.google.ads.mediation", name = "facebook", version.ref = "metaMediationAdapter" }
-inmobi-mediation-adapter = { group = "com.google.ads.mediation", name = "inmobi", version.ref = "inMobiMediationAdapter" }
+firebase-config-ktx = { module = "com.google.firebase:firebase-config-ktx" }
 vungle = { module = "com.google.ads.mediation:vungle", version.ref = "vungle" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
