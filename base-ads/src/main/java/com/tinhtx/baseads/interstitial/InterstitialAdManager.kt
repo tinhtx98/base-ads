@@ -107,12 +107,17 @@ class InterstitialAdManager @Inject constructor(
 
                     // Attach ILRD listener (Impression Level Revenue Data)
                     interstitialAd.onPaidEventListener = OnPaidEventListener { adValue: AdValue ->
+                        // Get mediation adapter info for proper attribution
+                        val responseInfo = interstitialAd.responseInfo
+                        val adapterClassName = responseInfo?.loadedAdapterResponseInfo?.adapterClassName
+                        
                         adRevenueReporter.reportInterstitialRevenue(
                             adUnitsProvider.interstitialAdUnitId,
                             adValue.valueMicros,
                             adValue.currencyCode,
                             adValue.precisionType,
-                            lastShowRoute
+                            adapterClassName = adapterClassName,
+                            route = lastShowRoute
                         )
                     }
                     

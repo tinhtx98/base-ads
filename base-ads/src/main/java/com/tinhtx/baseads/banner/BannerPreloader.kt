@@ -112,11 +112,16 @@ class BannerPreloader @Inject constructor(
 
                         // Attach ILRD (paid) listener
                         onPaidEventListener = OnPaidEventListener { adValue: AdValue ->
-                            adRevenueReporter.reportInterstitialRevenue( // reuse generic method name
+                            // Get mediation adapter info for proper attribution
+                            val responseInfo = this@apply.responseInfo
+                            val adapterClassName = responseInfo?.loadedAdapterResponseInfo?.adapterClassName
+                            
+                            adRevenueReporter.reportBannerRevenue(
                                 adUnitsProvider.bannerAdUnitId,
                                 adValue.valueMicros,
                                 adValue.currencyCode,
                                 adValue.precisionType,
+                                adapterClassName = adapterClassName,
                                 route = null
                             )
                         }

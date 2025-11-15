@@ -261,11 +261,16 @@ fun BannerAdItem(
                     
                     // Attach ILRD listener for banner revenue
                     onPaidEventListener = OnPaidEventListener { adValue: AdValue ->
-                        adRevenueReporter.reportInterstitialRevenue(
+                        // Get mediation adapter info for proper attribution
+                        val responseInfo = this@apply.responseInfo
+                        val adapterClassName = responseInfo?.loadedAdapterResponseInfo?.adapterClassName
+                        
+                        adRevenueReporter.reportBannerRevenue(
                             adUnitsProvider.bannerAdUnitId,
                             adValue.valueMicros,
                             adValue.currencyCode,
                             adValue.precisionType,
+                            adapterClassName = adapterClassName,
                             route = null
                         )
                     }
