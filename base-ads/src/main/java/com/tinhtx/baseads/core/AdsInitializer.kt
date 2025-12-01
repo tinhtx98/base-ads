@@ -167,26 +167,6 @@ class AdsInitializer @Inject constructor(
     fun isInitialized(): Boolean = isInitialized
     
     /**
-     * Convenience method to initialize with common test device configurations
-     */
-    fun initializeWithTestDevices(
-        context: Context,
-        includeCommonTestDevices: Boolean = true
-    ) {
-        val testDevices = if (includeCommonTestDevices) {
-            listOf(
-                AdRequest.DEVICE_ID_EMULATOR, // Use AdMob's emulator constant
-                "33BE2250B43518CCDA7DE426D04EE231" // Common test device (replace with your device ID)
-            )
-        } else {
-            emptyList()
-        }
-        
-        AdsLogger.w("Initializer", "🧪 TEST MODE: Using test device IDs - bidding networks may not return bids")
-        initialize(context, testDevices)
-    }
-    
-    /**
      * Initialize in production mode (no test devices)
      * Use this to test real bidding behavior from all networks.
      * 

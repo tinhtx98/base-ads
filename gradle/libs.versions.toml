@@ -1,9 +1,8 @@
 [versions]
 agp = "8.7.2"
-coilVideo = "2.6.0"
-billingKtx = "7.0.0"
-coreSplashscreen = "1.0.1"
+audienceNetworkSdk = "6.21.0"
 firebaseBomVersion = "33.5.1"
+inmobiAdsKotlin = "10.8.8"
 kotlin = "2.1.20"
 kotlinxCoroutinesAndroid = "1.7.3"
 ksp = "2.1.20-1.0.31"
@@ -14,40 +13,30 @@ espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.9.3"
 composeBom = "2024.12.01"
+mediationsdk = "9.1.0"
 navigationCompose = "2.8.4"
-hiltAndroid = "2.52"
 hiltNavigationCompose = "1.2.0"
 playServicesAds = "24.7.0"
-roomVersion = "2.6.1"
-coroutinesVersion = "1.9.0"
+publisherSdkAndroid = "7.6.0"
 vungle = "7.6.0.0"
-workRuntimeKtx = "2.10.0"
-accompanistPermissions = "0.32.0"
-coil = "2.7.0"
-documentfile = "1.0.1"
-vico = "2.0.0-alpha.28"
-gson = "2.11.0"
-retrofit = "2.11.0"
 hilt = "2.56.1"
-firebaseBom = "33.13.0"
-googleService = "4.4.2"
-googleCrashlytics = "3.0.3"
+firebaseBom = "34.6.0"
+googleService = "4.4.4"
+googleCrashlytics = "3.0.6"
 appcompat = "1.7.1"
 material = "1.12.0"
 activity = "1.10.1"
-playServicesAdsIdentifier = "18.0.1"
-ironSourceMediationAdapter = "9.0.0.1"
-ironSourceSdk = "8.4.0"
-metaMediationAdapter = "6.20.0.2"
-inMobiMediationAdapter = "10.8.7.0"
+playServicesAdsIdentifier = "18.2.0"
+ironSourceMediationAdapter = "9.1.0.0"
+metaMediationAdapter = "6.21.0.0"
+inMobiMediationAdapter = "10.8.8.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
-billing-ktx = { module = "com.android.billingclient:billing-ktx", version.ref = "billingKtx" }
-coil-video = { module = "io.coil-kt:coil-video", version.ref = "coilVideo" }
+audience-network-sdk = { module = "com.facebook.android:audience-network-sdk", version.ref = "audienceNetworkSdk" }
 firebase-bom-v3351 = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBomVersion" }
 google-firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx" }
+inmobi-ads-kotlin = { module = "com.inmobi.sdk:inmobi-ads-kotlin", version.ref = "inmobiAdsKotlin" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -68,61 +57,24 @@ androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navig
 # Hilt
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
-hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hilt" }
-
-# Room
-androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "roomVersion" }
-androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomVersion" }
-androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomVersion" }
-
-# Coroutines
-kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutinesVersion" }
-
-# Work Manager
-androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
-androidx-hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltNavigationCompose" }
-
-# Permissions
-accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanistPermissions" }
-
-# Image processing
-coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
-
-# File operations
-androidx-documentfile = { group = "androidx.documentfile", name = "documentfile", version.ref = "documentfile" }
 
 # Charts
 kotlinx-coroutines-android-v173 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
+mediationsdk = { module = "com.ironsource.sdk:mediationsdk", version.ref = "mediationsdk" }
 play-services-ads-v2460 = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
-vico-compose = { group = "com.patrykandpatrick.vico", name = "compose", version.ref = "vico" }
-vico-compose-m3 = { group = "com.patrykandpatrick.vico", name = "compose-m3", version.ref = "vico" }
-vico-core = { group = "com.patrykandpatrick.vico", name = "core", version.ref = "vico" }
 
-# Network (Retrofit, OkHttp, Gson)
-retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
-retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
-okhttp-bom = { group = "com.squareup.okhttp3", name = "okhttp-bom", version = "4.12.0" }
-okhttp-core = { group = "com.squareup.okhttp3", name = "okhttp" }
-okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor" }
-gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
-
-firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-analytics-ktx = { module = "com.google.firebase:firebase-analytics-ktx" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
-firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx" }
-firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-crashlytics-ktx = { module = "com.google.firebase:firebase-crashlytics-ktx" }
-firebase-config = { module = "com.google.firebase:firebase-config" }
 firebase-config-ktx = { module = "com.google.firebase:firebase-config-ktx" }
-google-firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 play-services-ads-identifier = { group = "com.google.android.gms", name = "play-services-ads-identifier", version.ref = "playServicesAdsIdentifier" }
 ironsource-mediation-adapter = { group = "com.google.ads.mediation", name = "ironsource", version.ref = "ironSourceMediationAdapter" }
-ironsource-sdk = { group = "com.ironsrc.mediationsdk", name = "mediationsdk", version.ref = "ironSourceSdk" }
 meta-mediation-adapter = { group = "com.google.ads.mediation", name = "facebook", version.ref = "metaMediationAdapter" }
 inmobi-mediation-adapter = { group = "com.google.ads.mediation", name = "inmobi", version.ref = "inMobiMediationAdapter" }
+publisher-sdk-android = { module = "com.vungle:publisher-sdk-android", version.ref = "publisherSdkAndroid" }
 vungle = { module = "com.google.ads.mediation:vungle", version.ref = "vungle" }
 
 [plugins]
@@ -131,7 +83,6 @@ android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 # THAY ĐỔI: Thêm plugin Google Services và Crashlytics Gradle
 google-services = { id = "com.google.gms.google-services", version.ref = "googleService" }

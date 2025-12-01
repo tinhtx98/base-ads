@@ -283,18 +283,33 @@ class InterstitialAdManager @Inject constructor(
      * 
      * @param activity Current activity to show the ad
      * @param onShown Optional callback when ad is shown/dismissed
-     * @return true if ad was shown, false if no ad available
+     * @param onNoAdAvailable Optional callback when no ad is available (allows caller to proceed to next screen)
+     * @param onShowFailed Optional callback when ad fails to show with error details
+     * @return true if ad was shown, false if no ad available or show failed
      */
     fun show(
         activity: Activity,
-        onShown: (() -> Unit)? = null
+        onShown: (() -> Unit)? = null,
+        onNoAdAvailable: (() -> Unit)? = null,
+        onShowFailed: ((errorMessage: String) -> Unit)? = null
     ): Boolean {
         AdsLogger.d("Interstitial", "Force showing interstitial ad (bypassing policy)")
         
         // Check if we have a cached ad
         val ad = cachedAd
         if (ad == null) {
-            AdsLogger.d("Interstitial", "No cached ad available for force show")
+            val message = "No cached ad available for force show"
+            AdsLogger.d("Interstitial", message)
+            AdsLogger.updateAdStatus(interstitialAdId, AdStatus.NOT_AVAILABLE, "No fill")
+            
+            analyticsLogger.logEvent("ad_interstitial_no_fill", mapOf(
+                "type" to "force_show",
+                "ad_unit_id" to adUnitsProvider.interstitialAdUnitId
+            ))
+            
+            // Notify caller that no ad is available so they can proceed
+            onNoAdAvailable?.invoke()
+            
             // Try to preload for next time
             preload()
             return false
@@ -357,6 +372,9 @@ class InterstitialAdManager @Inject constructor(
                     "type" to "force_show"
                 ))
                 
+                // Notify caller about the failure so they can proceed to next screen
+                onShowFailed?.invoke(errorMsg)
+                
                 // Preload next ad
                 preload()
             }
@@ -368,10 +386,20 @@ class InterstitialAdManager @Inject constructor(
             ad.show(activity)
             true
         } catch (e: Exception) {
+            val errorMsg = "Exception: ${e.message}"
             AdsLogger.e("Interstitial", "Exception force showing interstitial ad", e)
+            AdsLogger.updateAdStatus(interstitialAdId, AdStatus.FAILED, errorMsg)
             
             // Clear cached ad
             cachedAd = null
+            
+            analyticsLogger.logEvent("ad_interstitial_show_exception", mapOf(
+                "exception_message" to (e.message ?: "Unknown"),
+                "type" to "force_show"
+            ))
+            
+            // Notify caller about the failure so they can proceed to next screen
+            onShowFailed?.invoke(errorMsg)
             
             // Preload next ad
             preload()
