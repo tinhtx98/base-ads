@@ -281,22 +281,42 @@ class InterstitialAdManager @Inject constructor(
      * Force shows an interstitial ad immediately, bypassing all policy checks.
      * This method ignores VIP status, cooldowns, daily caps, and route blocklists.
      * 
+     * If ad is not ready yet but still loading, this method will wait up to [waitTimeoutMs] milliseconds.
+     * 
      * @param activity Current activity to show the ad
      * @param onShown Optional callback when ad is shown/dismissed
      * @param onNoAdAvailable Optional callback when no ad is available (allows caller to proceed to next screen)
      * @param onShowFailed Optional callback when ad fails to show with error details
+     * @param waitTimeoutMs Maximum time to wait for ad to load (default 2000ms = 2s)
      * @return true if ad was shown, false if no ad available or show failed
      */
     fun show(
         activity: Activity,
         onShown: (() -> Unit)? = null,
         onNoAdAvailable: (() -> Unit)? = null,
-        onShowFailed: ((errorMessage: String) -> Unit)? = null
+        onShowFailed: ((errorMessage: String) -> Unit)? = null,
+        waitTimeoutMs: Long = 2000
     ): Boolean {
         AdsLogger.d("Interstitial", "Force showing interstitial ad (bypassing policy)")
         
         // Check if we have a cached ad
-        val ad = cachedAd
+        var ad = cachedAd
+        
+        // If ad not ready yet but loading, wait for it
+        if (ad == null && isLoading) {
+            AdsLogger.d("Interstitial", "Ad still loading, waiting up to ${waitTimeoutMs}ms...")
+            val startTime = System.currentTimeMillis()
+            
+            while (ad == null && (System.currentTimeMillis() - startTime) < waitTimeoutMs) {
+                Thread.sleep(100) // Check every 100ms
+                ad = cachedAd
+            }
+            
+            if (ad != null) {
+                AdsLogger.d("Interstitial", "Ad loaded after waiting")
+            }
+        }
+        
         if (ad == null) {
             val message = "No cached ad available for force show"
             AdsLogger.d("Interstitial", message)
@@ -499,5 +519,15 @@ class InterstitialAdManager @Inject constructor(
         cachedAd = null
         isLoading = false
         AdsLogger.d("Interstitial", "Cache cleared")
+    }
+    
+    /**
+     * Force preload interstitial ad immediately, ignoring all checks.
+     * This should be called as early as possible (e.g., in MainActivity onCreate)
+     * to ensure ad is ready for splash screen or other early screens.
+     */
+    fun forcePreload() {
+        AdsLogger.d("Interstitial", "Force preloading interstitial ad")
+        preload()
     }
 }
