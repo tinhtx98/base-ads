@@ -55,6 +55,10 @@ object AdsLogger {
     private val bannerImpressions = AtomicInteger(0)
     private val interstitialRequests = AtomicInteger(0)
     private val interstitialImpressions = AtomicInteger(0)
+    private val nativeRequests = AtomicInteger(0)
+    private val nativeImpressions = AtomicInteger(0)
+    private val openAppRequests = AtomicInteger(0)
+    private val openAppImpressions = AtomicInteger(0)
     
     // Thread-safe map to track individual ad instances
     private val adInstances = ConcurrentHashMap<String, AdInstance>()
@@ -294,6 +298,38 @@ object AdsLogger {
     }
     
     /**
+     * Marks a native ad request
+     */
+    fun markNativeRequest() {
+        nativeRequests.incrementAndGet()
+        d("Native", "Native request marked. Total requests: ${nativeRequests.get()}")
+    }
+    
+    /**
+     * Marks a native ad impression
+     */
+    fun markNativeImpression() {
+        nativeImpressions.incrementAndGet()
+        d("Native", "Native impression marked. Total impressions: ${nativeImpressions.get()}")
+    }
+    
+    /**
+     * Marks an open app ad request
+     */
+    fun markOpenAppRequest() {
+        openAppRequests.incrementAndGet()
+        d("OpenApp", "Open app request marked. Total requests: ${openAppRequests.get()}")
+    }
+    
+    /**
+     * Marks an open app ad impression
+     */
+    fun markOpenAppImpression() {
+        openAppImpressions.incrementAndGet()
+        d("OpenApp", "Open app impression marked. Total impressions: ${openAppImpressions.get()}")
+    }
+    
+    /**
      * Returns summary of ads performance rates
      */
     fun rateSummary(): String {
@@ -305,8 +341,18 @@ object AdsLogger {
             String.format("%.1f", (interstitialImpressions.get() * 100.0 / interstitialRequests.get()))
         } else "0.0"
         
+        val nativeRate = if (nativeRequests.get() > 0) {
+            String.format("%.1f", (nativeImpressions.get() * 100.0 / nativeRequests.get()))
+        } else "0.0"
+        
+        val openAppRate = if (openAppRequests.get() > 0) {
+            String.format("%.1f", (openAppImpressions.get() * 100.0 / openAppRequests.get()))
+        } else "0.0"
+        
         return "Ads Rates - Banner: ${bannerImpressions.get()}/${bannerRequests.get()} ($bannerRate%), " +
-                "Interstitial: ${interstitialImpressions.get()}/${interstitialRequests.get()} ($interstitialRate%)"
+                "Interstitial: ${interstitialImpressions.get()}/${interstitialRequests.get()} ($interstitialRate%), " +
+                "Native: ${nativeImpressions.get()}/${nativeRequests.get()} ($nativeRate%), " +
+                "OpenApp: ${openAppImpressions.get()}/${openAppRequests.get()} ($openAppRate%)"
     }
     
     /**
@@ -324,6 +370,10 @@ object AdsLogger {
         bannerImpressions.set(0)
         interstitialRequests.set(0)
         interstitialImpressions.set(0)
+        nativeRequests.set(0)
+        nativeImpressions.set(0)
+        openAppRequests.set(0)
+        openAppImpressions.set(0)
         d("Performance", "Ads counters reset")
     }
 }

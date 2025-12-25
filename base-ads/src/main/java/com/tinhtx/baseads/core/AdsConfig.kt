@@ -29,6 +29,8 @@ data class AdsConfig(
     val enableAds: Boolean = true,
     val enableInterstitial: Boolean = true,
     val enableBanner: Boolean = true,
+    val enableNativeAd: Boolean = true,
+    val enableOpenAppAd: Boolean = true,
     val interstitialBlocklistRoutes: Set<String> = setOf(
         "premium",
         "vip", 
@@ -42,6 +44,16 @@ data class AdsConfig(
         "billing"
     ),
     val showInterstitialBeforeNavigate: Boolean = false,
+    
+    // Open App Ad configuration
+    val openAppExcludedActivities: Set<String> = setOf(
+        "SplashActivity",
+        "PaymentActivity",
+        "PremiumActivity",
+        "SubscriptionActivity"
+    ),
+    val showOpenAppOnColdStart: Boolean = true,
+    val showOpenAppOnWarmStart: Boolean = true,
     
     // Bidding mediation configuration (no app keys needed)
     val enableBiddingOptimization: Boolean = true,
@@ -84,6 +96,16 @@ data class AdsConfig(
      * Checks if banner ads should be shown
      */
     fun shouldShowBanner(): Boolean = enableAds && enableBanner
+    
+    /**
+     * Checks if native ads should be shown
+     */
+    fun shouldShowNativeAd(): Boolean = enableAds && enableNativeAd
+    
+    /**
+     * Checks if open app ads should be shown
+     */
+    fun shouldShowOpenAppAd(): Boolean = enableAds && enableOpenAppAd
     
     /**
      * Checks if banner refresh tracking is enabled

@@ -6,6 +6,24 @@
 -dontwarn com.google.android.gms.ads.**
 -dontwarn com.google.ads.mediation.**
 
+# Keep Native Ad classes
+-keep class com.google.android.gms.ads.nativead.** { *; }
+-keep class com.google.android.gms.ads.nativead.NativeAd$* { *; }
+-keepclassmembers class * implements com.google.android.gms.ads.nativead.NativeAd$OnNativeAdLoadedListener {
+    <methods>;
+}
+
+# Keep Open App Ad classes
+-keep class com.google.android.gms.ads.appopen.** { *; }
+-keep class com.google.android.gms.ads.appopen.AppOpenAd$* { *; }
+-keepclassmembers class * implements com.google.android.gms.ads.appopen.AppOpenAd$AppOpenAdLoadCallback {
+    <methods>;
+}
+
+# ProcessLifecycleOwner for Open App Ad
+-keep class androidx.lifecycle.ProcessLifecycleOwner { *; }
+-keep class * implements androidx.lifecycle.DefaultLifecycleObserver { *; }
+
 # Keep Vungle (Liftoff) SDK classes
 -keep class com.vungle.** { *; }
 -keep class com.liftoff.** { *; }

@@ -98,6 +98,90 @@ class AdRevenueReporter @Inject constructor(
     }
     
     /**
+     * Reports native ad revenue.
+     * @param adUnitId AdMob ad unit id
+     * @param valueMicros Revenue micros (1_000_000 micros = 1 unit currency)
+     * @param currency ISO 4217 currency code
+     * @param precision Google Mobile Ads precision enum value
+     * @param adapterClassName Mediation adapter class name (for attribution)
+     * @param template Native ad template type
+     * @param route Optional route/screen name at show time
+     */
+    fun reportNativeRevenue(
+        adUnitId: String,
+        valueMicros: Long,
+        currency: String?,
+        precision: Int,
+        adapterClassName: String?,
+        template: String?,
+        route: String?
+    ) {
+        if (!adsConfig.shouldTrackMediationAnalytics()) return
+
+        val revenue = valueMicros / 1_000_000.0
+        val adapterName = extractAdapterName(adapterClassName)
+        
+        AdsLogger.d(
+            "Revenue",
+            "ILRD native revenue=$revenue $currency (micros=$valueMicros, precision=$precision, adapter=$adapterName, template=$template, route=$route)"
+        )
+
+        analyticsLogger.logEvent(
+            "ad_native_paid",
+            mapOf(
+                "ad_unit_id" to adUnitId,
+                "revenue_micros" to valueMicros,
+                "revenue" to revenue,
+                "currency" to (currency ?: "UNKNOWN"),
+                "precision" to precision,
+                "adapter_class_name" to (adapterClassName ?: "unknown"),
+                "adapter_name" to adapterName,
+                "template" to (template ?: "unknown"),
+                "route" to (route ?: "unknown")
+            )
+        )
+    }
+    
+    /**
+     * Reports open app ad revenue.
+     * @param adUnitId AdMob ad unit id
+     * @param valueMicros Revenue micros (1_000_000 micros = 1 unit currency)
+     * @param currency ISO 4217 currency code
+     * @param precision Google Mobile Ads precision enum value
+     * @param adapterClassName Mediation adapter class name (for attribution)
+     */
+    fun reportOpenAppRevenue(
+        adUnitId: String,
+        valueMicros: Long,
+        currency: String?,
+        precision: Int,
+        adapterClassName: String?
+    ) {
+        if (!adsConfig.shouldTrackMediationAnalytics()) return
+
+        val revenue = valueMicros / 1_000_000.0
+        val adapterName = extractAdapterName(adapterClassName)
+        
+        AdsLogger.d(
+            "Revenue",
+            "ILRD open_app revenue=$revenue $currency (micros=$valueMicros, precision=$precision, adapter=$adapterName)"
+        )
+
+        analyticsLogger.logEvent(
+            "ad_open_app_paid",
+            mapOf(
+                "ad_unit_id" to adUnitId,
+                "revenue_micros" to valueMicros,
+                "revenue" to revenue,
+                "currency" to (currency ?: "UNKNOWN"),
+                "precision" to precision,
+                "adapter_class_name" to (adapterClassName ?: "unknown"),
+                "adapter_name" to adapterName
+            )
+        )
+    }
+    
+    /**
      * Extract friendly adapter name from class name.
      * Examples:
      * - com.google.ads.mediation.ironsource.IronSourceMediationAdapter -> ironsource

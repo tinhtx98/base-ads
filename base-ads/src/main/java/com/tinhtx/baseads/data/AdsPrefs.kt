@@ -35,6 +35,11 @@ class AdsPrefs @Inject constructor(
         private const val KEY_LAST_COUNT_RESET_DAY = "last_count_reset_day"
         private const val KEY_APP_LAUNCH_COUNT = "app_launch_count"
         private const val KEY_TOTAL_INTERSTITIAL_SHOWN = "total_interstitial_shown"
+        
+        // Open App Ad keys
+        private const val KEY_LAST_OPEN_APP_EPOCH = "last_open_app_epoch"
+        private const val KEY_TODAY_OPEN_APP_COUNT = "today_open_app_count"
+        private const val KEY_TOTAL_OPEN_APP_SHOWN = "total_open_app_shown"
     }
     
     /**
@@ -131,9 +136,75 @@ class AdsPrefs @Inject constructor(
             
             prefs.edit()
                 .putInt(KEY_TODAY_INTERSTITIAL_COUNT, 0)
+                .putInt(KEY_TODAY_OPEN_APP_COUNT, 0)
                 .putInt(KEY_LAST_COUNT_RESET_DAY, today)
                 .apply()
         }
+    }
+    
+    // ============================================================================
+    // Open App Ad Methods
+    // ============================================================================
+    
+    /**
+     * Gets the timestamp (in seconds) when open app ad was last shown
+     */
+    fun getLastOpenAppEpoch(): Long {
+        return prefs.getLong(KEY_LAST_OPEN_APP_EPOCH, 0)
+    }
+    
+    /**
+     * Sets the timestamp when open app ad was shown
+     */
+    fun setLastOpenAppEpoch(epochSeconds: Long) {
+        prefs.edit()
+            .putLong(KEY_LAST_OPEN_APP_EPOCH, epochSeconds)
+            .apply()
+        
+        AdsLogger.d("Prefs", "Last open app epoch set: $epochSeconds")
+    }
+    
+    /**
+     * Gets today's open app ad count, automatically resets if new day
+     */
+    fun getTodayOpenAppCount(): Int {
+        resetTodayIfNeeded()
+        return prefs.getInt(KEY_TODAY_OPEN_APP_COUNT, 0)
+    }
+    
+    /**
+     * Increments today's open app ad count
+     */
+    fun incrementTodayOpenAppCount() {
+        resetTodayIfNeeded()
+        val currentCount = prefs.getInt(KEY_TODAY_OPEN_APP_COUNT, 0)
+        val newCount = currentCount + 1
+        
+        prefs.edit()
+            .putInt(KEY_TODAY_OPEN_APP_COUNT, newCount)
+            .apply()
+        
+        // Also increment total count
+        incrementTotalOpenAppShown()
+        
+        AdsLogger.d("Prefs", "Today's open app count incremented: $newCount")
+    }
+    
+    /**
+     * Gets total number of open app ads shown across all time
+     */
+    fun getTotalOpenAppShown(): Int {
+        return prefs.getInt(KEY_TOTAL_OPEN_APP_SHOWN, 0)
+    }
+    
+    /**
+     * Increments total open app shown counter
+     */
+    private fun incrementTotalOpenAppShown() {
+        val total = getTotalOpenAppShown() + 1
+        prefs.edit()
+            .putInt(KEY_TOTAL_OPEN_APP_SHOWN, total)
+            .apply()
     }
     
     /**
@@ -160,6 +231,9 @@ class AdsPrefs @Inject constructor(
             "last_interstitial_epoch" to getLastInterstitialEpoch(),
             "today_interstitial_count" to getTodayInterstitialCount(),
             "total_interstitial_shown" to getTotalInterstitialShown(),
+            "last_open_app_epoch" to getLastOpenAppEpoch(),
+            "today_open_app_count" to getTodayOpenAppCount(),
+            "total_open_app_shown" to getTotalOpenAppShown(),
             "app_launch_count" to getAppLaunchCount(),
             "current_day_key" to getTodayKey()
         )

@@ -38,6 +38,28 @@
 }
 
 # ============================================================================
+# Native Ad Support
+# ============================================================================
+-keep class com.google.android.gms.ads.nativead.** { *; }
+-keep class com.google.android.gms.ads.nativead.NativeAd$* { *; }
+-keepclassmembers class * implements com.google.android.gms.ads.nativead.NativeAd$OnNativeAdLoadedListener {
+    <methods>;
+}
+
+# ============================================================================
+# Open App Ad Support
+# ============================================================================
+-keep class com.google.android.gms.ads.appopen.** { *; }
+-keep class com.google.android.gms.ads.appopen.AppOpenAd$* { *; }
+-keepclassmembers class * implements com.google.android.gms.ads.appopen.AppOpenAd$AppOpenAdLoadCallback {
+    <methods>;
+}
+
+# ProcessLifecycleOwner for Open App Ad
+-keep class androidx.lifecycle.ProcessLifecycleOwner { *; }
+-keep class * implements androidx.lifecycle.DefaultLifecycleObserver { *; }
+
+# ============================================================================
 # Vungle (Liftoff) Mediation Adapter
 # ============================================================================
 -keep class com.google.ads.mediation.vungle.** { *; }

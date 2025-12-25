@@ -24,6 +24,16 @@ interface AdUnitsProvider {
      * Returns the ad unit ID for interstitial ads
      */
     val interstitialAdUnitId: String
+    
+    /**
+     * Returns the ad unit ID for native ads
+     */
+    val nativeAdUnitId: String
+    
+    /**
+     * Returns the ad unit ID for open app ads
+     */
+    val openAppAdUnitId: String
 }
 
 /**
@@ -37,6 +47,12 @@ class TestAdUnitsProvider @Inject constructor() : AdUnitsProvider {
     
     override val interstitialAdUnitId: String
         get() = AdsConstants.TestAdUnits.INTERSTITIAL
+    
+    override val nativeAdUnitId: String
+        get() = AdsConstants.TestAdUnits.NATIVE
+    
+    override val openAppAdUnitId: String
+        get() = AdsConstants.TestAdUnits.OPEN_APP
 }
 
 /**
@@ -45,9 +61,13 @@ class TestAdUnitsProvider @Inject constructor() : AdUnitsProvider {
  */
 class ProductionAdUnitsProvider(
     private val bannerUnitId: String,
-    private val interstitialUnitId: String
+    private val interstitialUnitId: String,
+    private val nativeUnitId: String = AdsConstants.TestAdUnits.NATIVE,
+    private val openAppUnitId: String = AdsConstants.TestAdUnits.OPEN_APP
 ) : AdUnitsProvider {
     
     override val bannerAdUnitId: String = bannerUnitId
     override val interstitialAdUnitId: String = interstitialUnitId
+    override val nativeAdUnitId: String = nativeUnitId
+    override val openAppAdUnitId: String = openAppUnitId
 }

@@ -39,11 +39,48 @@ object AdsConstants {
      */
     const val PREF_NAMESPACE = "base_ads_prefs"
     
+    // ============================================================================
+    // Open App Ad Constants
+    // ============================================================================
+    
+    /**
+     * Minimum seconds between showing open app ads (aggressive: 30s)
+     */
+    const val OPEN_APP_COOLDOWN_SECONDS = 30L
+    
+    /**
+     * Maximum number of open app ads to show per day
+     */
+    const val OPEN_APP_DAILY_CAP = 50
+    
+    /**
+     * Hours before an open app ad expires and needs reload
+     */
+    const val OPEN_APP_EXPIRATION_HOURS = 4L
+    
+    // ============================================================================
+    // Native Ad Constants
+    // ============================================================================
+    
+    /**
+     * Maximum number of native ads to cache
+     */
+    const val NATIVE_AD_CACHE_SIZE = 5
+    
+    /**
+     * Hours before a native ad expires and needs reload
+     */
+    const val NATIVE_AD_EXPIRATION_HOURS = 1L
+    
     /**
      * Test ad unit IDs provided by Google AdMob for development
      */
     object TestAdUnits {
         const val BANNER = "ca-app-pub-3940256099942544/6300978111"
         const val INTERSTITIAL = "ca-app-pub-3940256099942544/1033173712"
+        const val NATIVE = "ca-app-pub-3940256099942544/2247696110"
+        const val NATIVE_VIDEO = "ca-app-pub-3940256099942544/1044960115"
+        const val OPEN_APP = "ca-app-pub-3940256099942544/9257395921"
+        const val REWARDED = "ca-app-pub-3940256099942544/5224354917"
     }
 }
