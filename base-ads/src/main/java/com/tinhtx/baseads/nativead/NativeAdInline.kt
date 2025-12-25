@@ -173,7 +173,7 @@ private fun NativeAdInlineContent(
                     }
                     
                     // Icon
-                    val iconView = ImageView(ctx).apply {
+                    var iconView = ImageView(ctx).apply {
                         layoutParams = android.widget.LinearLayout.LayoutParams(48.dpToPx(ctx), 48.dpToPx(ctx)).apply {
                             marginEnd = 12.dpToPx(ctx)
                         }
@@ -203,7 +203,7 @@ private fun NativeAdInlineContent(
                     textContainer.addView(adBadge)
                     
                     // Headline
-                    val headlineView = TextView(ctx).apply {
+                    var headlineView = TextView(ctx).apply {
                         layoutParams = android.widget.LinearLayout.LayoutParams(
                             android.view.ViewGroup.LayoutParams.MATCH_PARENT,
                             android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -217,7 +217,7 @@ private fun NativeAdInlineContent(
                     headlineView = headlineView
                     
                     // Body
-                    val bodyView = TextView(ctx).apply {
+                    var bodyView = TextView(ctx).apply {
                         layoutParams = android.widget.LinearLayout.LayoutParams(
                             android.view.ViewGroup.LayoutParams.MATCH_PARENT,
                             android.view.ViewGroup.LayoutParams.WRAP_CONTENT

@@ -71,6 +71,10 @@ dependencies {
     // Use 'api' to expose to consuming apps when built as AAR
     api(libs.play.services.ads.v2460)
     
+    // Lifecycle (for Open App Ads ProcessLifecycleOwner)
+    api("androidx.lifecycle:lifecycle-process:2.8.7")
+    api(libs.androidx.lifecycle.runtime.ktx)
+    
     // Bidding mediation partners (for real-time bidding)
     // CRITICAL: Must use 'api' instead of 'implementation' for AAR library
     // This ensures mediation adapters are available at runtime in consuming apps
