@@ -15,8 +15,9 @@ object AdsConstants {
     
     /**
      * Minimum seconds between showing interstitial ads to prevent spam
+     * Increased to 60s for better user experience and policy compliance
      */
-    const val INTERSTITIAL_COOLDOWN_SECONDS = 15L
+    const val INTERSTITIAL_COOLDOWN_SECONDS = 60L
     
     /**
      * Maximum number of interstitial ads to show per day
@@ -25,14 +26,16 @@ object AdsConstants {
     
     /**
      * Delay before showing first interstitial after app launch
+     * Increased to 45s to let users explore app first
      */
-    const val INTERSTITIAL_FIRST_LAUNCH_DELAY_SECONDS = 20L
+    const val INTERSTITIAL_FIRST_LAUNCH_DELAY_SECONDS = 45L
     
     /**
      * Minimum seconds after opening a screen before showing interstitial
      * to avoid immediate interruption of user flow
+     * Increased to 60s for better UX and policy compliance
      */
-    const val MIN_SECONDS_AFTER_SCREEN_OPEN = 5L
+    const val MIN_SECONDS_AFTER_SCREEN_OPEN = 60L
     
     /**
      * SharedPreferences namespace for ads module
@@ -44,14 +47,16 @@ object AdsConstants {
     // ============================================================================
     
     /**
-     * Minimum seconds between showing open app ads (aggressive: 30s)
+     * Minimum seconds between showing open app ads
+     * Set to 120s (2 minutes) to prevent spam and ensure policy compliance
      */
-    const val OPEN_APP_COOLDOWN_SECONDS = 30L
+    const val OPEN_APP_COOLDOWN_SECONDS = 120L
     
     /**
      * Maximum number of open app ads to show per day
+     * Reduced to 12 to prevent excessive ad load (was 50 - too aggressive!)
      */
-    const val OPEN_APP_DAILY_CAP = 50
+    const val OPEN_APP_DAILY_CAP = 12
     
     /**
      * Hours before an open app ad expires and needs reload
