@@ -23,9 +23,11 @@ import com.tinhtx.baseads.core.AdsConstants
 import com.tinhtx.baseads.core.AdsLogger
 import com.tinhtx.baseads.core.AdStatus
 import com.tinhtx.baseads.core.AnalyticsLogger
+import com.tinhtx.baseads.core.InterstitialFrequencyGate
 import com.tinhtx.baseads.core.VipGate
 import com.tinhtx.baseads.data.AdsPrefs
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
@@ -51,6 +53,11 @@ class InterstitialAdManager @Inject constructor(
     private var isLoading = false
     private val lastScreenOpenAtMs = AtomicLong(0)
     @Volatile private var lastShowRoute: String? = null
+    private val frequencyGate = InterstitialFrequencyGate(
+        actionThreshold = adsConfig.interstitialActionThreshold,
+        dedupeMillis = adsConfig.interstitialActionDedupeMillis,
+        maxPerSession = adsConfig.interstitialMaxPerSession
+    )
     
     private val interstitialAdId = "interstitial_main"  // Unique ID for interstitial tracking
     
@@ -165,7 +172,14 @@ class InterstitialAdManager @Inject constructor(
     ): Boolean = suspendCancellableCoroutine { continuation ->
         
         val now = System.currentTimeMillis()
-        
+
+        // Count the user action; only every Nth action (and never a duplicate trigger) may show
+        if (!frequencyGate.registerAction(now)) {
+            AdsLogger.d("Interstitial", "Action threshold not reached or duplicate trigger")
+            continuation.resume(false)
+            return@suspendCancellableCoroutine
+        }
+
         // Check if we should show the ad based on policy
         if (!passPolicy(now, currentRoute)) {
             AdsLogger.d("Interstitial", "Policy check failed, not showing ad")
@@ -209,7 +223,8 @@ class InterstitialAdManager @Inject constructor(
                 // Update preferences
                 adsPrefs.setLastInterstitialEpoch(System.currentTimeMillis() / 1000)
                 adsPrefs.incrementTodayInterstitialCount()
-                
+                frequencyGate.onAdShown()
+
                 analyticsLogger.logEvent("ad_interstitial_dismissed", mapOf(
                     "route" to currentRoute,
                     "today_count" to adsPrefs.getTodayInterstitialCount(),
@@ -358,6 +373,7 @@ class InterstitialAdManager @Inject constructor(
                 // Update preferences (even for force show)
                 adsPrefs.setLastInterstitialEpoch(System.currentTimeMillis() / 1000)
                 adsPrefs.incrementTodayInterstitialCount()
+                frequencyGate.onAdShown()
                 
                 analyticsLogger.logEvent("ad_interstitial_dismissed", mapOf(
                     "type" to "force_show",
@@ -429,6 +445,54 @@ class InterstitialAdManager @Inject constructor(
     }
     
     /**
+     * Shows the splash interstitial at most once per process.
+     *
+     * Unlike [show], this respects VIP/config, the per-process cap, and a repeated call
+     * (e.g. the Activity is recreated) is ignored. The wait for a still-loading ad is
+     * non-blocking, so it is safe to call from the main thread.
+     *
+     * @return true if an ad was shown, false otherwise (callbacks tell the caller to proceed)
+     */
+    suspend fun showOnSplash(
+        activity: Activity,
+        onShown: (() -> Unit)? = null,
+        onNoAdAvailable: (() -> Unit)? = null,
+        onShowFailed: ((errorMessage: String) -> Unit)? = null,
+        waitTimeoutMs: Long = 2000
+    ): Boolean {
+        if (vipGate.isVip() || !adsConfig.shouldShowInterstitial()) {
+            AdsLogger.d("Interstitial", "Splash interstitial skipped - VIP or disabled")
+            onNoAdAvailable?.invoke()
+            return false
+        }
+        if (!frequencyGate.tryClaimSplash()) {
+            AdsLogger.d("Interstitial", "Splash interstitial skipped - already handled in this process")
+            onNoAdAvailable?.invoke()
+            return false
+        }
+        if (frequencyGate.isSessionCapReached()) {
+            AdsLogger.d("Interstitial", "Splash interstitial skipped - session cap reached")
+            onNoAdAvailable?.invoke()
+            return false
+        }
+
+        if (cachedAd == null && isLoading) {
+            val startTime = System.currentTimeMillis()
+            while (cachedAd == null && isLoading && System.currentTimeMillis() - startTime < waitTimeoutMs) {
+                delay(100)
+            }
+        }
+
+        return show(
+            activity = activity,
+            onShown = onShown,
+            onNoAdAvailable = onNoAdAvailable,
+            onShowFailed = onShowFailed,
+            waitTimeoutMs = 0
+        )
+    }
+
+    /**
      * Checks if the ad passes policy requirements for showing
      */
     private fun passPolicy(nowMs: Long, route: String?): Boolean {
@@ -459,18 +523,24 @@ class InterstitialAdManager @Inject constructor(
         val lastInterstitialEpoch = adsPrefs.getLastInterstitialEpoch()
         val nowEpoch = nowMs / 1000
         val elapsedSinceLastMs = (nowEpoch - lastInterstitialEpoch)
-        if (elapsedSinceLastMs < AdsConstants.INTERSTITIAL_COOLDOWN_SECONDS) {
+        if (elapsedSinceLastMs < adsConfig.interstitialCooldownSeconds) {
             AdsLogger.d(
-                "Policy", 
-                "Cooldown not met: ${elapsedSinceLastMs}s < ${AdsConstants.INTERSTITIAL_COOLDOWN_SECONDS}s"
+                "Policy",
+                "Cooldown not met: ${elapsedSinceLastMs}s < ${adsConfig.interstitialCooldownSeconds}s"
             )
             return false
         }
-        
+
         // Check daily cap
         val todayCount = adsPrefs.getTodayInterstitialCount()
-        if (todayCount >= AdsConstants.INTERSTITIAL_DAILY_CAP) {
-            AdsLogger.d("Policy", "Daily cap reached: $todayCount >= ${AdsConstants.INTERSTITIAL_DAILY_CAP}")
+        if (todayCount >= adsConfig.interstitialDailyCap) {
+            AdsLogger.d("Policy", "Daily cap reached: $todayCount >= ${adsConfig.interstitialDailyCap}")
+            return false
+        }
+
+        // Check per-process cap (splash included)
+        if (frequencyGate.isSessionCapReached()) {
+            AdsLogger.d("Policy", "Session cap reached")
             return false
         }
         
@@ -509,7 +579,7 @@ class InterstitialAdManager @Inject constructor(
             "current_time_ms" to System.currentTimeMillis(),
             "vip_status" to vipGate.isVip(),
             "config_enabled" to adsConfig.shouldShowInterstitial()
-        ) + adsPrefs.getDebugInfo()
+        ) + frequencyGate.debugInfo() + adsPrefs.getDebugInfo()
     }
     
     /**

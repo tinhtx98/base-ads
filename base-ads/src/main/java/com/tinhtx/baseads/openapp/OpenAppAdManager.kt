@@ -202,6 +202,17 @@ class OpenAppAdManager @Inject constructor(
             return OpenAppAdResult.CooldownActive
         }
         
+        // Stay quiet right after a full-screen interstitial
+        val blockAfterInterstitialSeconds = adsConfig.openAppBlockAfterInterstitialSeconds
+        if (!bypassCooldown && blockAfterInterstitialSeconds > 0) {
+            val sinceInterstitialSeconds =
+                System.currentTimeMillis() / 1000 - adsPrefs.getLastInterstitialEpoch()
+            if (sinceInterstitialSeconds < blockAfterInterstitialSeconds) {
+                AdsLogger.d(TAG, "Skipping show - interstitial dismissed ${sinceInterstitialSeconds}s ago")
+                return OpenAppAdResult.CooldownActive
+            }
+        }
+
         // Check daily cap
         if (adsPrefs.getTodayOpenAppCount() >= AdsConstants.OPEN_APP_DAILY_CAP) {
             AdsLogger.d(TAG, "Skipping show - Daily cap reached")

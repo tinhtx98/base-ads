@@ -24,6 +24,12 @@ package com.tinhtx.baseads.core
  * @param enableIronSourceLogging Enable verbose logging for ironSource bidder (analytics side only)
  * @param enableMetaBidding Enable Meta Audience Network as a bidding partner
  * @param enableMetaLogging Enable verbose logging for Meta bidder (analytics side only)
+ * @param interstitialCooldownSeconds Minimum seconds between interstitials
+ * @param interstitialDailyCap Maximum interstitials per day (persisted)
+ * @param interstitialMaxPerSession Maximum interstitials per process, splash included
+ * @param interstitialActionThreshold User actions required before an interstitial may show
+ * @param interstitialActionDedupeMillis Window in which repeated triggers count as one action
+ * @param openAppBlockAfterInterstitialSeconds Seconds Open App ads stay suppressed after an interstitial
  */
 data class AdsConfig(
     val enableAds: Boolean = true,
@@ -72,7 +78,21 @@ data class AdsConfig(
     
     // Banner refresh settings (for tracking AdMob auto-refresh)
     val trackBannerRefresh: Boolean = true,
-    val enableBannerRefreshAnalytics: Boolean = true
+    val enableBannerRefreshAnalytics: Boolean = true,
+
+    // Interstitial frequency policy. Defaults keep the legacy behaviour; apps opt in
+    // to a lower frequency by overriding them.
+    val interstitialCooldownSeconds: Long = AdsConstants.INTERSTITIAL_COOLDOWN_SECONDS,
+    val interstitialDailyCap: Int = AdsConstants.INTERSTITIAL_DAILY_CAP,
+    // Maximum interstitials per process, splash included (Int.MAX_VALUE = unlimited)
+    val interstitialMaxPerSession: Int = Int.MAX_VALUE,
+    // User actions required before an interstitial may show (1 = every action)
+    val interstitialActionThreshold: Int = 1,
+    // Actions closer together than this are one gesture and count once
+    val interstitialActionDedupeMillis: Long = 800L,
+
+    // Open App ads are suppressed this long after an interstitial is dismissed (0 = off)
+    val openAppBlockAfterInterstitialSeconds: Long = 0L
 ) {
     
     /**
